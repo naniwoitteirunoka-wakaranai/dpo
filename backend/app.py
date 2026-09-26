@@ -9,8 +9,8 @@ from openpyxl.styles import Font
 app = Flask(__name__)
 CORS(app)
 
-DB_NAME = "dpo_framework.db"
-EXPORT_DIR = "exports"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+EXPORT_DIR = os.path.join(BASE_DIR, "exports")
 
 os.makedirs(EXPORT_DIR, exist_ok=True)
 
