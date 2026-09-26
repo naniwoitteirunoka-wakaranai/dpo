@@ -223,6 +223,7 @@ table{
     width:100%;
     border-collapse:collapse;
     margin-top:20px;
+    table-layout:fixed;
     overflow:hidden;
     border-radius:14px;
 }
@@ -233,12 +234,16 @@ thead{
 
 th{
     color:#E0F2FE;
-    padding:14px;
+    padding:14px 16px;
+    text-align:left;          /* <-- align headers with data */
+    font-weight:600;
 }
 
 td{
-    padding:12px;
+    padding:16px;
     border-bottom:1px solid var(--border);
+    text-align:left;          /* <-- align row data */
+    vertical-align:middle;
 }
 
 tbody tr:nth-child(even){
