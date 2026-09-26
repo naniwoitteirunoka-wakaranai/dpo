@@ -7,7 +7,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Font
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:5500"}})
+CORS(app)
 
 DB_NAME = "dpo_framework.db"
 EXPORT_DIR = "exports"
