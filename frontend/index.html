@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GENAI DPO PRIVACY FRAMEWORK</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>GENAI DPO PRIVACY FRAMEWORK</h1>
+  <p>Generative AI Personal Data Risk & Incident Management</p>
+</header>
+
+<section class="stats">
+
+  <div class="card">
+    <h3>Total Assessments</h3>
+    <span id="totalAssessments">0</span>
+  </div>
+
+  <div class="card">
+    <h3>High / Critical Risks</h3>
+    <span id="highAssessments">0</span>
+  </div>
+
+  <div class="card">
+    <h3>Open Incidents</h3>
+    <span id="openIncidents">0</span>
+  </div>
+
+  <div class="card">
+    <h3>Critical Incidents</h3>
+    <span id="criticalIncidents">0</span>
+  </div>
+
+</section>
+
+<nav>
+  <button onclick="showTab('risk')">Risk Assessment</button>
+  <button onclick="showTab('incident')">Incident Management</button>
+  <button onclick="showTab('assessmentHistory')">Assessment History</button>
+  <button onclick="showTab('incidentHistory')">Incident History</button>
+</nav>
+
+<main>
+
+  <!-- Risk Assessment -->
+  <section id="risk" class="tab active">
+
+    <div class="panel">
+
+      <div class="panel-title">
+        <h2>GenAI Privacy Risk Assessment</h2>
+        <button class="secondary" onclick="loadExample()">Load Example</button>
+      </div>
+
+      <input id="use_case" placeholder="Use Case Name">
+
+      <textarea id="description" placeholder="Description"></textarea>
+
+      <div class="grid2">
+        <label>Personal Data
+          <select id="personal_data">
+            <option value="true">YES</option>
+            <option value="false">NO</option>
+          </select>
+        </label>
+
+        <label>Sensitive Personal Data
+          <select id="sensitive_data">
+            <option value="true">YES</option>
+            <option value="false">NO</option>
+          </select>
+        </label>
+
+        <label>External GenAI Provider
+          <select id="external_ai">
+            <option value="true">YES</option>
+            <option value="false">NO</option>
+          </select>
+        </label>
+
+        <label>Data Retention
+          <select id="retention">
+            <option value="true">YES</option>
+            <option value="false">NO</option>
+          </select>
+        </label>
+
+        <label>Consent / Legal Basis
+          <select id="consent">
+            <option value="true">YES</option>
+            <option value="false">NO</option>
+          </select>
+        </label>
+
+        <label>Affected Users
+          <input id="affected_users" type="number" value="0">
+        </label>
+
+      </div>
+
+      <button onclick="submitAssessment()">Calculate Risk</button>
+
+    </div>
+
+    <div id="riskResult" class="result hidden"></div>
+
+  </section>
+
+  <!-- Incident -->
+  <section id="incident" class="tab">
+
+    <div class="panel">
+
+      <h2>GenAI Privacy Incident Management</h2>
+
+      <input id="incident_type" placeholder="Incident Type">
+
+      <textarea id="incident_description" placeholder="Incident Description"></textarea>
+
+      <textarea id="data_exposed" placeholder="Data Exposed"></textarea>
+
+      <div class="grid2">
+
+        <label>Sensitive Data
+          <select id="incident_sensitive">
+            <option value="true">YES</option>
+            <option value="false">NO</option>
+          </select>
+        </label>
+
+        <label>External AI Involved
+          <select id="incident_external">
+            <option value="true">YES</option>
+            <option value="false">NO</option>
+          </select>
+        </label>
+
+        <label>Affected Users
+          <input id="incident_users" type="number" value="0">
+        </label>
+
+      </div>
+
+      <button onclick="submitIncident()">Assess Incident</button>
+
+    </div>
+
+    <div id="incidentResult" class="result hidden"></div>
+
+  </section>
+
+  <!-- Assessment History -->
+  <section id="assessmentHistory" class="tab">
+
+    <div class="panel">
+      <div class="panel-title">
+        <h2>Assessment History</h2>
+        <button onclick="loadAssessments()">Refresh</button>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Use Case</th>
+            <th>Risk</th>
+            <th>Score</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+
+        <tbody id="assessmentTable"></tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+  <!-- Incident History -->
+  <section id="incidentHistory" class="tab">
+
+    <div class="panel">
+
+      <div class="panel-title">
+        <h2>Incident History</h2>
+
+        <button onclick="loadIncidents()">Refresh</button>
+      </div>
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Incident</th>
+            <th>Severity</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+
+        <tbody id="incidentTable"></tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+</main>
+
+<footer>
+
+  <button class="export" onclick="window.open('http://localhost:5000/api/export')">
+    Export Excel Report
+  </button>
+
+</footer>
+
+<script src="app.js"></script>
+
+</body>
+</html>
