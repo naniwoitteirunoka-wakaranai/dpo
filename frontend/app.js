@@ -1,4 +1,4 @@
-const API = "http://localhost:5000/api";
+const API = "https://dpo-kng0.onrender.com/api";
 
 function showTab(tab){
     document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
