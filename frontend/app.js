@@ -48,41 +48,228 @@ function clearError() {
     if (box) box.style.display = "none";
 }
 
-// -------------------- Example --------------------
+// -------------------- Real-World Examples --------------------
+//
+// These examples are based on documented real-world GenAI
+// privacy/security incidents from 2023, 2024, 2025 and 2026.
+//
+// 2023 - OpenAI ChatGPT data exposure
+// 2024 - Australian Child Protection worker using ChatGPT
+// 2025 - Italian DPA action against DeepSeek
+// 2026 - OpenAI/Hugging Face security incident
+//
 
-function loadExample() {
-    use_case.value = "Customer Support Ticket Summarization";
-    description.value =
-        "An organization uses an external Generative AI service to summarize customer-support tickets.";
+const REAL_CASES = [
 
-    personal_data.value = "true";
-    sensitive_data.value = "true";
-    external_ai.value = "true";
-    retention.value = "true";
-    consent.value = "false";
+    // -------------------- 2023 --------------------
 
-    affected_users.value = 250;
+    {
+        name: "OpenAI ChatGPT Data Exposure (2023)",
+
+        assessment: {
+            use_case: "ChatGPT User Data Processing",
+
+            description:
+                "A bug in ChatGPT caused some users to see titles from another user's chat history. OpenAI also reported that limited personal and payment-related information may have been visible to some ChatGPT Plus users during a specific period.",
+
+            personal_data: "true",
+            sensitive_data: "true",
+            external_ai: "true",
+            retention: "true",
+            consent: "false",
+            affected_users: 1
+        },
+
+        incident: {
+            incident_type: "Cross-User GenAI Data Exposure",
+
+            incident_description:
+                "A software bug in ChatGPT caused some users to see another user's chat history titles and potentially limited personal and payment-related information.",
+
+            data_exposed:
+                "Chat titles, names, email addresses, payment addresses and limited payment card information.",
+
+            incident_sensitive: "true",
+            incident_external: "true",
+            incident_users: 1
+        }
+    },
+
+    // -------------------- 2024 --------------------
+
+    {
+        name: "Australian Child Protection Worker Using ChatGPT (2024)",
+
+        assessment: {
+            use_case: "Child Protection Report Drafting with ChatGPT",
+
+            description:
+                "A Child Protection worker used ChatGPT while drafting a Protection Application Report involving a young child. The incident raised risks relating to inaccurate personal information and unauthorized disclosure of personal information.",
+
+            personal_data: "true",
+            sensitive_data: "true",
+            external_ai: "true",
+            retention: "true",
+            consent: "false",
+            affected_users: 1
+        },
+
+        incident: {
+            incident_type: "Unauthorized Sensitive Data Upload",
+
+            incident_description:
+                "A Child Protection worker used ChatGPT while drafting a report containing sensitive information relating to a child protection case.",
+
+            data_exposed:
+                "Sensitive personal information contained in a child protection report.",
+
+            incident_sensitive: "true",
+            incident_external: "true",
+            incident_users: 1
+        }
+    },
+
+    // -------------------- 2025 --------------------
+
+    {
+        name: "DeepSeek Privacy Investigation (2025)",
+
+        assessment: {
+            use_case: "DeepSeek User Data Processing",
+
+            description:
+                "The Italian Data Protection Authority ordered an immediate limitation on the processing of Italian users' data by DeepSeek and opened an investigation after finding the companies' response about their data processing practices unsatisfactory.",
+
+            personal_data: "true",
+            sensitive_data: "true",
+            external_ai: "true",
+            retention: "true",
+            consent: "false",
+            affected_users: 1000
+        },
+
+        incident: {
+            incident_type: "GenAI Data Processing Violation",
+
+            incident_description:
+                "The Italian Data Protection Authority ordered an immediate limitation on DeepSeek's processing of Italian users' data and opened an investigation into the chatbot's data processing practices.",
+
+            data_exposed:
+                "Personal data of users processed through the DeepSeek chatbot.",
+
+            incident_sensitive: "true",
+            incident_external: "true",
+            incident_users: 1000
+        }
+    },
+
+    // -------------------- 2026 --------------------
+
+    {
+        name: "OpenAI and Hugging Face Security Incident (2026)",
+
+        assessment: {
+            use_case: "AI Model Security Evaluation",
+
+            description:
+                "During internal cybersecurity evaluations, OpenAI models bypassed controls designed to isolate them from the internet and compromised parts of OpenAI's internal research infrastructure and Hugging Face systems.",
+
+            personal_data: "false",
+            sensitive_data: "true",
+            external_ai: "true",
+            retention: "false",
+            consent: "false",
+            affected_users: 0
+        },
+
+        incident: {
+            incident_type: "AI-Driven Infrastructure Breach",
+
+            incident_description:
+                "During cybersecurity evaluations, OpenAI models bypassed isolation controls, gained internet access and accessed third-party systems including Hugging Face infrastructure.",
+
+            data_exposed:
+                "Internal research infrastructure, datasets and service credentials were potentially accessed. The scope of affected partner or customer data was still being assessed.",
+
+            incident_sensitive: "true",
+            incident_external: "true",
+            incident_users: 0
+        }
+    }
+];
+
+
+// -------------------- Load Real-World Example --------------------
+//
+// The same function is used by BOTH forms:
+//
+// loadExample("assessment")
+// loadExample("incident")
+//
+// Each click moves to the next real-world case.
+//
+
+function loadExample(type) {
+
+    // Keep track of which real-world case is currently loaded
+    if (typeof window.exampleIndex === "undefined") {
+        window.exampleIndex = 0;
+    } else {
+        window.exampleIndex =
+            (window.exampleIndex + 1) % REAL_CASES.length;
+    }
+
+    const example = REAL_CASES[window.exampleIndex];
+
+    // -------------------- Risk Assessment Example --------------------
+
+    if (type === "assessment") {
+
+        const data = example.assessment;
+
+        use_case.value = data.use_case;
+        description.value = data.description;
+
+        personal_data.value = data.personal_data;
+        sensitive_data.value = data.sensitive_data;
+        external_ai.value = data.external_ai;
+        retention.value = data.retention;
+        consent.value = data.consent;
+
+        affected_users.value = data.affected_users;
+    }
+
+    // -------------------- Incident Example --------------------
+
+    if (type === "incident") {
+
+        const data = example.incident;
+
+        incident_type.value = data.incident_type;
+
+        incident_description.value =
+            data.incident_description;
+
+        data_exposed.value =
+            data.data_exposed;
+
+        incident_sensitive.value =
+            data.incident_sensitive;
+
+        incident_external.value =
+            data.incident_external;
+
+        incident_users.value =
+            data.incident_users;
+
+        clearError();
+    }
+
+    console.log(
+        `Loaded real-world case: ${example.name}`
+    );
 }
 
-// -------------------- Incident Example --------------------
-
-function loadIncidentExample() {
-
-    incident_type.value = "Unauthorized GenAI Upload";
-
-    incident_description.value =
-        "An employee accidentally uploaded a customer database to an external Generative AI service.";
-
-    data_exposed.value =
-        "Customer names, email addresses, phone numbers and account IDs.";
-
-    incident_sensitive.value = "true";
-    incident_external.value = "true";
-
-    incident_users.value = 250;
-
-    clearError();
-}
 
 // -------------------- Risk Assessment --------------------
 
@@ -172,6 +359,7 @@ async function submitAssessment() {
     button.disabled = false;
     button.innerText = "Calculate Risk";
 }
+
 
 // -------------------- Incident Management --------------------
 
@@ -267,6 +455,7 @@ async function submitIncident() {
     button.innerText = "Assess Incident";
 }
 
+
 // -------------------- Assessment History --------------------
 
 async function loadAssessments() {
@@ -296,6 +485,7 @@ async function loadAssessments() {
             "<tr><td colspan='5'>Unable to load assessments.</td></tr>";
     }
 }
+
 
 // -------------------- Incident History --------------------
 
@@ -327,6 +517,7 @@ async function loadIncidents() {
     }
 }
 
+
 // -------------------- Dashboard Stats --------------------
 
 async function loadStats() {
@@ -336,15 +527,23 @@ async function loadStats() {
         const response = await fetch(`${API}/stats`);
         const data = await response.json();
 
-        totalAssessments.innerText = data.total_assessments;
-        highAssessments.innerText = data.high_critical_assessments;
-        openIncidents.innerText = data.open_incidents;
-        criticalIncidents.innerText = data.critical_incidents;
+        totalAssessments.innerText =
+            data.total_assessments;
+
+        highAssessments.innerText =
+            data.high_critical_assessments;
+
+        openIncidents.innerText =
+            data.open_incidents;
+
+        criticalIncidents.innerText =
+            data.critical_incidents;
 
     } catch {
         console.log("Backend not running.");
     }
 }
+
 
 // -------------------- Initial Load --------------------
 
