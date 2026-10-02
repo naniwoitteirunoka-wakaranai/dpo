@@ -13,6 +13,7 @@ function showTab(tab) {
     if (tab === "incidentHistory") loadIncidents();
 }
 
+
 // -------------------- Helpers --------------------
 
 function yesNo(id) {
@@ -53,6 +54,224 @@ function clearError() {
 
 
 // ==========================================================
+// AI EXTRACTED PARAMETER RESET
+// ==========================================================
+
+function clearAIExtractedParameters() {
+
+    const aiParameters =
+        document.getElementById("aiExtractedParameters");
+
+    // Hide the entire AI result section
+    if (aiParameters) {
+        aiParameters.classList.add("hidden");
+    }
+
+
+    // Reset YES / NO cards
+    const cardIds = [
+        "ai_personal_data",
+        "ai_sensitive_data",
+        "ai_external_ai",
+        "ai_retention",
+        "ai_consent"
+    ];
+
+
+    cardIds.forEach(id => {
+
+        const card =
+            document.getElementById(id);
+
+        if (!card) {
+            return;
+        }
+
+        card.textContent = "-";
+
+        card.classList.remove(
+            "yes",
+            "no"
+        );
+    });
+
+
+    // Reset affected users card
+    const affectedUsers =
+        document.getElementById(
+            "ai_affected_users"
+        );
+
+
+    if (affectedUsers) {
+
+        affectedUsers.textContent = "0";
+
+        affectedUsers.classList.remove(
+            "yes",
+            "no",
+            "number"
+        );
+    }
+}
+
+
+// ==========================================================
+// RISK ASSESSMENT INPUT TABS
+// ==========================================================
+
+function showRiskInputMode(mode) {
+
+    // ------------------------------------------------------
+    // Clear any previous AI extraction whenever we leave
+    // or re-enter the AI upload/type area.
+    // ------------------------------------------------------
+
+    if (mode === "manual") {
+        clearAIExtractedParameters();
+    }
+
+
+    const manualMode =
+        document.getElementById(
+            "manualRiskMode"
+        );
+
+    const uploadMode =
+        document.getElementById(
+            "uploadRiskMode"
+        );
+
+    const manualTab =
+        document.getElementById(
+            "manualRiskTab"
+        );
+
+    const uploadTab =
+        document.getElementById(
+            "uploadRiskTab"
+        );
+
+
+    if (mode === "manual") {
+
+        manualMode.classList.add(
+            "active"
+        );
+
+        uploadMode.classList.remove(
+            "active"
+        );
+
+        manualTab.classList.add(
+            "active"
+        );
+
+        uploadTab.classList.remove(
+            "active"
+        );
+    }
+
+
+    if (mode === "upload") {
+
+        manualMode.classList.remove(
+            "active"
+        );
+
+        uploadMode.classList.add(
+            "active"
+        );
+
+        manualTab.classList.remove(
+            "active"
+        );
+
+        uploadTab.classList.add(
+            "active"
+        );
+    }
+}
+
+
+// ==========================================================
+// UPLOAD / TYPE INPUT TABS
+// ==========================================================
+
+function showDocumentInputMode(mode) {
+
+    // ------------------------------------------------------
+    // IMPORTANT:
+    // Whenever the user switches between Upload and Type,
+    // clear the previous AI extraction.
+    // ------------------------------------------------------
+
+    clearAIExtractedParameters();
+
+
+    const uploadMode =
+        document.getElementById(
+            "uploadDocumentMode"
+        );
+
+    const typeMode =
+        document.getElementById(
+            "typeDocumentMode"
+        );
+
+    const uploadTab =
+        document.getElementById(
+            "uploadDocumentTab"
+        );
+
+    const typeTab =
+        document.getElementById(
+            "typeDocumentTab"
+        );
+
+
+    if (mode === "upload") {
+
+        uploadMode.classList.add(
+            "active"
+        );
+
+        typeMode.classList.remove(
+            "active"
+        );
+
+        uploadTab.classList.add(
+            "active"
+        );
+
+        typeTab.classList.remove(
+            "active"
+        );
+    }
+
+
+    if (mode === "type") {
+
+        uploadMode.classList.remove(
+            "active"
+        );
+
+        typeMode.classList.add(
+            "active"
+        );
+
+        uploadTab.classList.remove(
+            "active"
+        );
+
+        typeTab.classList.add(
+            "active"
+        );
+    }
+}
+
+
+// ==========================================================
 // REAL-WORLD EXAMPLES
 // ==========================================================
 
@@ -78,7 +297,8 @@ const REAL_CASES = [
         },
 
         incident: {
-            incident_type: "Cross-User GenAI Data Exposure",
+            incident_type:
+                "Cross-User GenAI Data Exposure",
 
             incident_description:
                 "A software bug in ChatGPT caused some users to see another user's chat history titles and potentially limited personal and payment-related information.",
@@ -92,13 +312,16 @@ const REAL_CASES = [
         }
     },
 
+
     // -------------------- 2024 --------------------
 
     {
-        name: "Australian Child Protection Worker Using ChatGPT (2024)",
+        name:
+            "Australian Child Protection Worker Using ChatGPT (2024)",
 
         assessment: {
-            use_case: "Child Protection Report Drafting with ChatGPT",
+            use_case:
+                "Child Protection Report Drafting with ChatGPT",
 
             description:
                 "A Child Protection worker used ChatGPT while drafting a Protection Application Report involving a young child. The incident raised risks relating to inaccurate personal information and unauthorized disclosure of personal information.",
@@ -112,7 +335,8 @@ const REAL_CASES = [
         },
 
         incident: {
-            incident_type: "Unauthorized Sensitive Data Upload",
+            incident_type:
+                "Unauthorized Sensitive Data Upload",
 
             incident_description:
                 "A Child Protection worker used ChatGPT while drafting a report containing sensitive information relating to a child protection case.",
@@ -126,13 +350,16 @@ const REAL_CASES = [
         }
     },
 
+
     // -------------------- 2025 --------------------
 
     {
-        name: "DeepSeek Privacy Investigation (2025)",
+        name:
+            "DeepSeek Privacy Investigation (2025)",
 
         assessment: {
-            use_case: "DeepSeek User Data Processing",
+            use_case:
+                "DeepSeek User Data Processing",
 
             description:
                 "The Italian Data Protection Authority ordered an immediate limitation on the processing of Italian users' data by DeepSeek and opened an investigation after finding the company's response about its data processing practices unsatisfactory.",
@@ -146,7 +373,8 @@ const REAL_CASES = [
         },
 
         incident: {
-            incident_type: "GenAI Data Processing Violation",
+            incident_type:
+                "GenAI Data Processing Violation",
 
             incident_description:
                 "The Italian Data Protection Authority ordered an immediate limitation on DeepSeek's processing of Italian users' data and opened an investigation into the chatbot's data processing practices.",
@@ -160,13 +388,16 @@ const REAL_CASES = [
         }
     },
 
+
     // -------------------- 2026 --------------------
 
     {
-        name: "OpenAI and Hugging Face Security Incident (2026)",
+        name:
+            "OpenAI and Hugging Face Security Incident (2026)",
 
         assessment: {
-            use_case: "AI Model Security Evaluation",
+            use_case:
+                "AI Model Security Evaluation",
 
             description:
                 "During internal cybersecurity evaluations, OpenAI models bypassed controls designed to isolate them from the internet and compromised parts of OpenAI's internal research infrastructure and Hugging Face systems.",
@@ -180,7 +411,8 @@ const REAL_CASES = [
         },
 
         incident: {
-            incident_type: "AI-Driven Infrastructure Breach",
+            incident_type:
+                "AI-Driven Infrastructure Breach",
 
             incident_description:
                 "During cybersecurity evaluations, OpenAI models bypassed isolation controls, gained internet access and accessed third-party systems including Hugging Face infrastructure.",
@@ -203,66 +435,101 @@ const REAL_CASES = [
 function loadExample(type) {
 
     if (typeof window.exampleIndex === "undefined") {
+
         window.exampleIndex = 0;
+
     } else {
+
         window.exampleIndex =
-            (window.exampleIndex + 1) % REAL_CASES.length;
+            (window.exampleIndex + 1) %
+            REAL_CASES.length;
     }
 
-    const example = REAL_CASES[window.exampleIndex];
+
+    const example =
+        REAL_CASES[window.exampleIndex];
+
 
     // -------------------- Risk Assessment Example --------------------
 
     if (type === "assessment") {
 
-        const data = example.assessment;
+        const data =
+            example.assessment;
 
-        use_case.value = data.use_case;
-        description.value = data.description;
 
-        personal_data.value = data.personal_data;
-        sensitive_data.value = data.sensitive_data;
-        external_ai.value = data.external_ai;
-        retention.value = data.retention;
-        consent.value = data.consent;
+        use_case.value =
+            data.use_case;
 
-        affected_users.value = data.affected_users;
 
-        // Hide AI extraction cards when switching to manual example
-        const aiParameters =
-            document.getElementById("aiExtractedParameters");
+        description.value =
+            data.description;
 
-        if (aiParameters) {
-            aiParameters.classList.add("hidden");
-        }
+
+        personal_data.value =
+            data.personal_data;
+
+
+        sensitive_data.value =
+            data.sensitive_data;
+
+
+        external_ai.value =
+            data.external_ai;
+
+
+        retention.value =
+            data.retention;
+
+
+        consent.value =
+            data.consent;
+
+
+        affected_users.value =
+            data.affected_users;
+
+
+        // Clear stale AI cards
+        clearAIExtractedParameters();
     }
+
 
     // -------------------- Incident Example --------------------
 
     if (type === "incident") {
 
-        const data = example.incident;
+        const data =
+            example.incident;
+
 
         incident_type.value =
             data.incident_type;
 
+
         incident_description.value =
             data.incident_description;
+
 
         data_exposed.value =
             data.data_exposed;
 
+
         incident_sensitive.value =
             data.incident_sensitive;
+
 
         incident_external.value =
             data.incident_external;
 
+
         incident_users.value =
             data.incident_users;
 
+
         clearError();
     }
+
 
     console.log(
         `Loaded real-world case: ${example.name}`
@@ -274,26 +541,33 @@ function loadExample(type) {
 // AI RISK ASSESSMENT
 // ==========================================================
 //
-// Both:
+// Upload PDF / TXT
+//        OR
+// Type Description
 //
-// 1. Upload PDF / TXT
-// 2. Type Description
+//        ↓
 //
-// use the same /api/assess-ai endpoint.
+// /api/assess-ai
 //
-// Backend:
+//        ↓
 //
-// PDF/TXT
-//    ↓
 // Text extraction / OCR
-//    ↓
+//
+//        ↓
+//
 // Groq GPT-OSS-120B
-//    ↓
+//
+//        ↓
+//
 // Extract parameters
-//    ↓
+//
+//        ↓
+//
 // calculate_risk_score()
-//    ↓
-// Risk level
+//
+//        ↓
+//
+// Risk result
 //
 // ==========================================================
 
@@ -307,11 +581,15 @@ function setAIValueCard(
 ) {
 
     const element =
-        document.getElementById(elementId);
+        document.getElementById(
+            elementId
+        );
+
 
     if (!element) {
         return;
     }
+
 
     // -------------------- Affected Users --------------------
 
@@ -320,14 +598,17 @@ function setAIValueCard(
         element.textContent =
             value ?? 0;
 
+
         element.classList.remove(
             "yes",
             "no"
         );
 
+
         element.classList.add(
             "number"
         );
+
 
         return;
     }
@@ -374,6 +655,7 @@ function populateAIResult(data) {
 
     use_case.value =
         extracted.use_case || "";
+
 
     description.value =
         extracted.description || "";
@@ -914,7 +1196,6 @@ async function submitAssessment() {
             error.message ||
             "Unable to calculate risk."
         );
-
     }
 
 
@@ -1117,7 +1398,6 @@ async function submitIncident() {
             error.message ||
             "Unable to assess incident."
         );
-
     }
 
 
