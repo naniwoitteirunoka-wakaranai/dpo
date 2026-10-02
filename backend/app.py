@@ -1,19 +1,46 @@
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
+
 import sqlite3
 import os
+import json
+
 from datetime import datetime
+
 from openpyxl import Workbook
 from openpyxl.styles import Font
+
+import fitz  # PyMuPDF
+import pytesseract
+from PIL import Image
+
+from groq import Groq
+
 
 app = Flask(__name__)
 CORS(app)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 EXPORT_DIR = os.path.join(BASE_DIR, "exports")
-DB_NAME = "dpo_framework.db"
+DB_NAME = os.path.join(BASE_DIR, "dpo_framework.db")
 
 os.makedirs(EXPORT_DIR, exist_ok=True)
+
+
+# ==========================================================
+# GROQ
+# ==========================================================
+
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+
+groq_client = None
+
+if GROQ_API_KEY:
+    groq_client = Groq(api_key=GROQ_API_KEY)
+
+
+GROQ_MODEL = "openai/gpt-oss-120b"
+
 
 # ==========================================================
 # DATABASE
@@ -26,6 +53,7 @@ def get_db():
 
 
 def init_db():
+
     conn = get_db()
     cur = conn.cursor()
 
@@ -68,13 +96,33 @@ def init_db():
 
 init_db()
 
+
 # ==========================================================
 # RISK ENGINE
+#
 # Formula:
 # R = P + 2S + E + D + (1-C)
 # ==========================================================
 
-def calculate_risk_score(personal, sensitive, external, retention, consent):
+def calculate_risk_score(
+    personal,
+    sensitive,
+    external,
+    retention,
+    consent
+):
+    """
+    Deterministic GenAI privacy risk calculation.
+
+    P = Personal data
+    S = Sensitive personal data
+    E = External GenAI provider
+    D = Data retention
+    C = Consent / legal basis
+
+    R = P + 2S + E + D + (1-C)
+    """
+
     P = int(personal)
     S = int(sensitive)
     E = int(external)
@@ -82,20 +130,26 @@ def calculate_risk_score(personal, sensitive, external, retention, consent):
     C = int(consent)
 
     score = P + (2 * S) + E + D + (1 - C)
+
     return score
 
 
 def classify_risk(score):
+
     if score <= 1:
         return "LOW"
+
     elif score <= 3:
         return "MEDIUM"
+
     elif score <= 5:
         return "HIGH"
+
     return "CRITICAL"
 
 
 def generate_recommendations(data, level):
+
     recs = []
 
     if data["personal_data"]:
@@ -119,10 +173,14 @@ def generate_recommendations(data, level):
         ])
 
     if data["retention"]:
-        recs.append("Review retention and deletion policies for GenAI outputs.")
+        recs.append(
+            "Review retention and deletion policies for GenAI outputs."
+        )
 
     if not data["consent"]:
-        recs.append("Require DPO or legal approval before deployment.")
+        recs.append(
+            "Require DPO or legal approval before deployment."
+        )
 
     if level in ["HIGH", "CRITICAL"]:
         recs.extend([
@@ -137,6 +195,7 @@ def generate_recommendations(data, level):
         ])
 
     return list(dict.fromkeys(recs))
+
 
 # ==========================================================
 # INCIDENT ENGINE
@@ -153,7 +212,13 @@ FINANCIAL_KEYWORDS = [
 ]
 
 
-def calculate_incident_score(sensitive, external, users, exposed_text):
+def calculate_incident_score(
+    sensitive,
+    external,
+    users,
+    exposed_text
+):
+
     score = 0
 
     if sensitive:
@@ -164,28 +229,37 @@ def calculate_incident_score(sensitive, external, users, exposed_text):
 
     if users >= 500:
         score += 2
+
     elif users >= 100:
         score += 1
 
     text = exposed_text.lower()
 
-    if any(word in text for word in FINANCIAL_KEYWORDS):
+    if any(
+        word in text
+        for word in FINANCIAL_KEYWORDS
+    ):
         score += 1
 
     return score
 
 
 def classify_incident(score):
+
     if score <= 1:
         return "LOW"
+
     elif score <= 3:
         return "MEDIUM"
+
     elif score <= 5:
         return "HIGH"
+
     return "CRITICAL"
 
 
 def incident_actions(severity, data):
+
     actions = [
         "Contain the incident immediately.",
         "Identify exposed personal data.",
@@ -194,10 +268,14 @@ def incident_actions(severity, data):
     ]
 
     if data["sensitive_data"]:
-        actions.append("Assess impact of sensitive data exposure.")
+        actions.append(
+            "Assess impact of sensitive data exposure."
+        )
 
     if data["external_ai"]:
-        actions.append("Review external AI provider interaction and logs.")
+        actions.append(
+            "Review external AI provider interaction and logs."
+        )
 
     if severity in ["HIGH", "CRITICAL"]:
         actions.extend([
@@ -213,15 +291,287 @@ def incident_actions(severity, data):
             "Implement additional privacy safeguards."
         ])
 
-    actions.append("Close incident after remediation is verified.")
+    actions.append(
+        "Close incident after remediation is verified."
+    )
 
     return list(dict.fromkeys(actions))
+
+
+# ==========================================================
+# DOCUMENT EXTRACTION
+# ==========================================================
+
+ALLOWED_EXTENSIONS = {
+    ".pdf",
+    ".txt"
+}
+
+
+def extract_pdf_text(file_path):
+    """
+    Extract text from a PDF.
+
+    First attempts normal PDF text extraction.
+
+    If a page contains little/no extractable text,
+    render the page as an image and run OCR.
+    """
+
+    document = fitz.open(file_path)
+
+    extracted_pages = []
+
+    for page in document:
+
+        text = page.get_text("text").strip()
+
+        # Normal text-based PDF
+        if len(text) >= 30:
+            extracted_pages.append(text)
+            continue
+
+        # --------------------------------------------------
+        # OCR fallback for scanned/image-based pages
+        # --------------------------------------------------
+
+        pixmap = page.get_pixmap(
+            matrix=fitz.Matrix(2, 2),
+            alpha=False
+        )
+
+        image = Image.frombytes(
+            "RGB",
+            [pixmap.width, pixmap.height],
+            pixmap.samples
+        )
+
+        ocr_text = pytesseract.image_to_string(
+            image
+        ).strip()
+
+        if ocr_text:
+            extracted_pages.append(ocr_text)
+
+    document.close()
+
+    return "\n\n".join(extracted_pages)
+
+
+def extract_document_text(file):
+
+    filename = file.filename or ""
+
+    extension = os.path.splitext(
+        filename
+    )[1].lower()
+
+    if extension not in ALLOWED_EXTENSIONS:
+        raise ValueError(
+            "Unsupported file type. Please upload a PDF or TXT file."
+        )
+
+    temp_path = os.path.join(
+        EXPORT_DIR,
+        f"_temp_{datetime.now().strftime('%Y%m%d%H%M%S%f')}{extension}"
+    )
+
+    file.save(temp_path)
+
+    try:
+
+        if extension == ".pdf":
+            text = extract_pdf_text(temp_path)
+
+        elif extension == ".txt":
+            with open(
+                temp_path,
+                "r",
+                encoding="utf-8",
+                errors="ignore"
+            ) as f:
+                text = f.read()
+
+        else:
+            text = ""
+
+    finally:
+
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+
+    if not text.strip():
+        raise ValueError(
+            "Could not extract any text from the uploaded document."
+        )
+
+    return text.strip()
+
+
+# ==========================================================
+# AI EXTRACTION
+# ==========================================================
+
+def extract_risk_parameters_with_ai(document_text):
+
+    if not groq_client:
+        raise RuntimeError(
+            "GROQ_API_KEY is not configured on the server."
+        )
+
+    system_prompt = """
+You are a privacy-risk extraction assistant for a GenAI DPO
+Privacy Framework.
+
+Your job is NOT to calculate the risk score.
+
+Your job is to read an incident report, privacy report,
+security report, or other uploaded document and extract
+structured information required by the framework.
+
+Extract ONLY information supported by the document.
+
+If a value cannot be determined from the document:
+
+- boolean fields should be false
+- affected_users should be 0
+- use_case should be a concise description inferred from
+  the document
+- description should summarize the relevant situation
+
+Definitions:
+
+personal_data:
+true if the document indicates that information relating
+to identifiable individuals is processed, exposed, uploaded,
+stored, shared, or otherwise handled.
+
+sensitive_data:
+true if the document indicates sensitive/special-category
+personal information or similarly high-risk personal data.
+
+external_ai:
+true if an external Generative AI / AI provider or third-party
+AI service is involved.
+
+retention:
+true if the document indicates that the AI provider,
+organization, system, logs, prompts, outputs, or related data
+are retained or stored.
+
+consent:
+true ONLY when the document clearly indicates that valid
+consent or another explicitly documented lawful basis exists.
+If the document does not establish this, return false.
+
+affected_users:
+Return the number of affected individuals when explicitly
+stated or reasonably extractable from the document.
+Otherwise return 0.
+
+Important:
+Do not invent facts.
+Do not estimate affected users.
+Do not calculate risk_score.
+Do not calculate risk_level.
+"""
+
+    user_prompt = f"""
+Analyze the following document and extract the privacy-risk
+parameters required by the framework.
+
+DOCUMENT:
+
+{document_text}
+"""
+
+    response = groq_client.chat.completions.create(
+        model=GROQ_MODEL,
+
+        messages=[
+            {
+                "role": "system",
+                "content": system_prompt
+            },
+            {
+                "role": "user",
+                "content": user_prompt
+            }
+        ],
+
+        temperature=0,
+
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "genai_privacy_assessment",
+                "schema": {
+                    "type": "object",
+
+                    "properties": {
+
+                        "use_case": {
+                            "type": "string"
+                        },
+
+                        "description": {
+                            "type": "string"
+                        },
+
+                        "personal_data": {
+                            "type": "boolean"
+                        },
+
+                        "sensitive_data": {
+                            "type": "boolean"
+                        },
+
+                        "external_ai": {
+                            "type": "boolean"
+                        },
+
+                        "retention": {
+                            "type": "boolean"
+                        },
+
+                        "consent": {
+                            "type": "boolean"
+                        },
+
+                        "affected_users": {
+                            "type": "integer"
+                        }
+
+                    },
+
+                    "required": [
+                        "use_case",
+                        "description",
+                        "personal_data",
+                        "sensitive_data",
+                        "external_ai",
+                        "retention",
+                        "consent",
+                        "affected_users"
+                    ],
+
+                    "additionalProperties": False
+                }
+            }
+        }
+    )
+
+    content = response.choices[0].message.content
+
+    return json.loads(content)
+
 
 # ==========================================================
 # HELPERS
 # ==========================================================
 
 def validation_error(message):
+
     return jsonify({
         "success": False,
         "error": message
@@ -229,21 +579,32 @@ def validation_error(message):
 
 
 def current_time():
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    return datetime.now().strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
 
 
 def bool_value(value):
+
     return bool(value)
 
 
 def serialize_rows(rows):
-    return [dict(row) for row in rows]
+
+    return [
+        dict(row)
+        for row in rows
+    ]
+
+
 # ==========================================================
 # HEALTH API
 # ==========================================================
 
 @app.route("/api/health", methods=["GET"])
 def health():
+
     return jsonify({
         "status": "ok",
         "service": "GenAI DPO Framework API"
@@ -260,7 +621,9 @@ def assess():
     data = request.get_json(silent=True)
 
     if not data:
-        return validation_error("Invalid JSON body.")
+        return validation_error(
+            "Invalid JSON body."
+        )
 
     required = [
         "use_case",
@@ -273,8 +636,11 @@ def assess():
     ]
 
     for field in required:
+
         if field not in data:
-            return validation_error(f"Missing field: {field}")
+            return validation_error(
+                f"Missing field: {field}"
+            )
 
     score = calculate_risk_score(
         data["personal_data"],
@@ -286,7 +652,10 @@ def assess():
 
     level = classify_risk(score)
 
-    recommendations = generate_recommendations(data, level)
+    recommendations = generate_recommendations(
+        data,
+        level
+    )
 
     conn = get_db()
     cur = conn.cursor()
@@ -321,7 +690,9 @@ def assess():
     ))
 
     conn.commit()
+
     assessment_id = cur.lastrowid
+
     conn.close()
 
     return jsonify({
@@ -333,10 +704,209 @@ def assess():
     })
 
 
-@app.route("/api/assessments", methods=["GET"])
+# ==========================================================
+# AI DOCUMENT RISK ASSESSMENT API
+# ==========================================================
+
+@app.route(
+    "/api/assess-ai",
+    methods=["POST"]
+)
+def assess_ai():
+
+    # ------------------------------------------------------
+    # Validate file
+    # ------------------------------------------------------
+
+    if "file" not in request.files:
+
+        return validation_error(
+            "No document uploaded."
+        )
+
+    file = request.files["file"]
+
+    if not file.filename:
+
+        return validation_error(
+            "No file selected."
+        )
+
+    try:
+
+        # --------------------------------------------------
+        # Extract text
+        # --------------------------------------------------
+
+        document_text = extract_document_text(
+            file
+        )
+
+        # --------------------------------------------------
+        # AI extraction
+        # --------------------------------------------------
+
+        ai_data = extract_risk_parameters_with_ai(
+            document_text
+        )
+
+        # --------------------------------------------------
+        # Normalize values
+        # --------------------------------------------------
+
+        ai_data["personal_data"] = bool(
+            ai_data["personal_data"]
+        )
+
+        ai_data["sensitive_data"] = bool(
+            ai_data["sensitive_data"]
+        )
+
+        ai_data["external_ai"] = bool(
+            ai_data["external_ai"]
+        )
+
+        ai_data["retention"] = bool(
+            ai_data["retention"]
+        )
+
+        ai_data["consent"] = bool(
+            ai_data["consent"]
+        )
+
+        ai_data["affected_users"] = max(
+            0,
+            int(ai_data.get("affected_users", 0))
+        )
+
+        # --------------------------------------------------
+        # IMPORTANT:
+        # AI DOES NOT calculate the score.
+        #
+        # Existing deterministic risk function does.
+        # --------------------------------------------------
+
+        score = calculate_risk_score(
+            ai_data["personal_data"],
+            ai_data["sensitive_data"],
+            ai_data["external_ai"],
+            ai_data["retention"],
+            ai_data["consent"]
+        )
+
+        level = classify_risk(
+            score
+        )
+
+        recommendations = generate_recommendations(
+            ai_data,
+            level
+        )
+
+        # --------------------------------------------------
+        # Store AI-generated assessment exactly like
+        # a normal assessment.
+        # --------------------------------------------------
+
+        conn = get_db()
+        cur = conn.cursor()
+
+        cur.execute("""
+            INSERT INTO assessments(
+                use_case,
+                description,
+                personal_data,
+                sensitive_data,
+                external_ai,
+                retention,
+                consent,
+                affected_users,
+                risk_score,
+                risk_level,
+                created_at
+            )
+            VALUES(?,?,?,?,?,?,?,?,?,?,?)
+        """, (
+            ai_data["use_case"],
+            ai_data["description"],
+            int(ai_data["personal_data"]),
+            int(ai_data["sensitive_data"]),
+            int(ai_data["external_ai"]),
+            int(ai_data["retention"]),
+            int(ai_data["consent"]),
+            ai_data["affected_users"],
+            score,
+            level,
+            current_time()
+        ))
+
+        conn.commit()
+
+        assessment_id = cur.lastrowid
+
+        conn.close()
+
+        # --------------------------------------------------
+        # Return extracted parameters so frontend can
+        # automatically populate the dropdowns/forms.
+        # --------------------------------------------------
+
+        return jsonify({
+            "success": True,
+
+            "assessment_id": assessment_id,
+
+            "extracted_data": {
+                "use_case": ai_data["use_case"],
+                "description": ai_data["description"],
+                "personal_data": ai_data["personal_data"],
+                "sensitive_data": ai_data["sensitive_data"],
+                "external_ai": ai_data["external_ai"],
+                "retention": ai_data["retention"],
+                "consent": ai_data["consent"],
+                "affected_users": ai_data["affected_users"]
+            },
+
+            "risk_score": score,
+
+            "risk_level": level,
+
+            "recommendations": recommendations
+        })
+
+    except ValueError as error:
+
+        return validation_error(
+            str(error)
+        )
+
+    except Exception as error:
+
+        print(
+            "AI assessment error:",
+            str(error)
+        )
+
+        return jsonify({
+            "success": False,
+            "error": (
+                "Unable to analyze the uploaded document."
+            )
+        }), 500
+
+
+# ==========================================================
+# ASSESSMENT HISTORY
+# ==========================================================
+
+@app.route(
+    "/api/assessments",
+    methods=["GET"]
+)
 def assessments():
 
     conn = get_db()
+
     rows = conn.execute("""
         SELECT *
         FROM assessments
@@ -356,13 +926,21 @@ def assessments():
 # INCIDENT MANAGEMENT API
 # ==========================================================
 
-@app.route("/api/incidents", methods=["POST"])
+@app.route(
+    "/api/incidents",
+    methods=["POST"]
+)
 def incidents():
 
-    data = request.get_json(silent=True)
+    data = request.get_json(
+        silent=True
+    )
 
     if not data:
-        return validation_error("Invalid JSON body.")
+
+        return validation_error(
+            "Invalid JSON body."
+        )
 
     required = [
         "incident_type",
@@ -374,10 +952,16 @@ def incidents():
     ]
 
     for field in required:
-        if field not in data:
-            return validation_error(f"Missing field: {field}")
 
-    users = int(data["affected_users"])
+        if field not in data:
+
+            return validation_error(
+                f"Missing field: {field}"
+            )
+
+    users = int(
+        data["affected_users"]
+    )
 
     score = calculate_incident_score(
         data["sensitive_data"],
@@ -386,9 +970,14 @@ def incidents():
         data["data_exposed"]
     )
 
-    severity = classify_incident(score)
+    severity = classify_incident(
+        score
+    )
 
-    actions = incident_actions(severity, data)
+    actions = incident_actions(
+        severity,
+        data
+    )
 
     conn = get_db()
     cur = conn.cursor()
@@ -421,7 +1010,9 @@ def incidents():
     ))
 
     conn.commit()
+
     incident_id = cur.lastrowid
+
     conn.close()
 
     return jsonify({
@@ -433,10 +1024,18 @@ def incidents():
     })
 
 
-@app.route("/api/incidents", methods=["GET"])
+# ==========================================================
+# INCIDENT HISTORY
+# ==========================================================
+
+@app.route(
+    "/api/incidents",
+    methods=["GET"]
+)
 def get_incidents():
 
     conn = get_db()
+
     rows = conn.execute("""
         SELECT *
         FROM incidents
@@ -456,7 +1055,10 @@ def get_incidents():
 # DASHBOARD STATS
 # ==========================================================
 
-@app.route("/api/stats", methods=["GET"])
+@app.route(
+    "/api/stats",
+    methods=["GET"]
+)
 def stats():
 
     conn = get_db()
@@ -498,7 +1100,10 @@ def stats():
 # EXCEL EXPORT
 # ==========================================================
 
-@app.route("/api/export", methods=["GET"])
+@app.route(
+    "/api/export",
+    methods=["GET"]
+)
 def export_excel():
 
     conn = get_db()
@@ -519,6 +1124,10 @@ def export_excel():
 
     wb = Workbook()
 
+    # ------------------------------------------------------
+    # Risk Assessments
+    # ------------------------------------------------------
+
     ws = wb.active
     ws.title = "Risk Assessments"
 
@@ -531,19 +1140,29 @@ def export_excel():
         "External AI",
         "Retention",
         "Consent",
+        "Affected Users",
         "Risk Score",
         "Risk Level",
         "Created At"
     ]
 
-    for col, header in enumerate(headers, start=1):
-        cell = ws.cell(row=1, column=col)
-        cell.value = header
-        cell.font = Font(bold=True)
+    for col, header in enumerate(
+        headers,
+        start=1
+    ):
 
-    row_no = 2
+        cell = ws.cell(
+            row=1,
+            column=col
+        )
+
+        cell.value = header
+        cell.font = Font(
+            bold=True
+        )
 
     for item in assessments:
+
         ws.append([
             item["id"],
             item["use_case"],
@@ -553,13 +1172,19 @@ def export_excel():
             "YES" if item["external_ai"] else "NO",
             "YES" if item["retention"] else "NO",
             "YES" if item["consent"] else "NO",
+            item["affected_users"],
             item["risk_score"],
             item["risk_level"],
             item["created_at"]
         ])
-        row_no += 1
 
-    ws2 = wb.create_sheet("Incidents")
+    # ------------------------------------------------------
+    # Incidents
+    # ------------------------------------------------------
+
+    ws2 = wb.create_sheet(
+        "Incidents"
+    )
 
     headers2 = [
         "ID",
@@ -574,12 +1199,23 @@ def export_excel():
         "Created At"
     ]
 
-    for col, header in enumerate(headers2, start=1):
-        cell = ws2.cell(row=1, column=col)
+    for col, header in enumerate(
+        headers2,
+        start=1
+    ):
+
+        cell = ws2.cell(
+            row=1,
+            column=col
+        )
+
         cell.value = header
-        cell.font = Font(bold=True)
+        cell.font = Font(
+            bold=True
+        )
 
     for item in incidents:
+
         ws2.append([
             item["id"],
             item["incident_type"],
@@ -595,7 +1231,8 @@ def export_excel():
 
     filename = os.path.join(
         EXPORT_DIR,
-        f"GenAI_DPO_Assessments_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+        f"GenAI_DPO_Assessments_"
+        f"{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
     )
 
     wb.save(filename)
@@ -613,9 +1250,9 @@ def export_excel():
 
 @app.route("/", methods=["GET"])
 def root():
+
     return jsonify({
         "message": "GenAI DPO Framework Backend Running",
-        "frontend": "http://localhost:5500",
         "health": "/api/health"
     })
 
@@ -625,8 +1262,16 @@ def root():
 # ==========================================================
 
 if __name__ == "__main__":
+
+    port = int(
+        os.environ.get(
+            "PORT",
+            5000
+        )
+    )
+
     app.run(
         host="0.0.0.0",
-        port=5000,
-        debug=True
+        port=port,
+        debug=False
     )
