@@ -45,8 +45,12 @@ function showError(message) {
 
 function clearError() {
     const box = document.getElementById("errorBox");
-    if (box) box.style.display = "none";
+
+    if (box) {
+        box.style.display = "none";
+    }
 }
+
 
 // -------------------- Real-World Examples --------------------
 //
@@ -138,7 +142,7 @@ const REAL_CASES = [
             use_case: "DeepSeek User Data Processing",
 
             description:
-                "The Italian Data Protection Authority ordered an immediate limitation on the processing of Italian users' data by DeepSeek and opened an investigation after finding the companies' response about their data processing practices unsatisfactory.",
+                "The Italian Data Protection Authority ordered an immediate limitation on the processing of Italian users' data by DeepSeek and opened an investigation after finding the company's response about its data processing practices unsatisfactory.",
 
             personal_data: "true",
             sensitive_data: "true",
@@ -211,7 +215,6 @@ const REAL_CASES = [
 
 function loadExample(type) {
 
-    // Keep track of which real-world case is currently loaded
     if (typeof window.exampleIndex === "undefined") {
         window.exampleIndex = 0;
     } else {
@@ -245,7 +248,8 @@ function loadExample(type) {
 
         const data = example.incident;
 
-        incident_type.value = data.incident_type;
+        incident_type.value =
+            data.incident_type;
 
         incident_description.value =
             data.incident_description;
@@ -271,261 +275,788 @@ function loadExample(type) {
 }
 
 
+// ==========================================================
+// AI RISK ASSESSMENT
+// ==========================================================
+//
+// Both:
+//
+// 1. Upload PDF / TXT
+// 2. Type Description
+//
+// use the same /api/assess-ai endpoint.
+//
+// The backend:
+// PDF/TXT -> text extraction/OCR -> Groq -> parameters
+// -> calculate_risk_score() -> risk level
+//
+// ==========================================================
+
+
+// -------------------- Populate AI Result --------------------
+
+function populateAIResult(data) {
+
+    const extracted = data.extracted_data;
+
+    // -------------------- Fill existing Risk Form --------------------
+
+    use_case.value =
+        extracted.use_case || "";
+
+    description.value =
+        extracted.description || "";
+
+    personal_data.value =
+        String(extracted.personal_data);
+
+    sensitive_data.value =
+        String(extracted.sensitive_data);
+
+    external_ai.value =
+        String(extracted.external_ai);
+
+    retention.value =
+        String(extracted.retention);
+
+    consent.value =
+        String(extracted.consent);
+
+    affected_users.value =
+        extracted.affected_users ?? 0;
+
+
+    // -------------------- Show Result --------------------
+
+    riskResult.classList.remove("hidden");
+
+    riskResult.innerHTML = `
+        <h2>AI Risk Assessment Result</h2>
+
+        ${badge(data.risk_level)}
+
+        <h3>Risk Score = ${data.risk_score} / 6</h3>
+
+        <h4>Recommended DPO Actions</h4>
+
+        <ul>
+            ${data.recommendations
+                .map(item => `<li>${item}</li>`)
+                .join("")}
+        </ul>
+    `;
+
+
+    // -------------------- Refresh Dashboard --------------------
+
+    loadStats();
+    loadAssessments();
+}
+
+
+// -------------------- Send Document to AI --------------------
+
+async function analyzeDocument(file) {
+
+    clearError();
+
+    if (!file) {
+        showError(
+            "Please select a PDF or TXT file."
+        );
+        return;
+    }
+
+
+    // -------------------- File Validation --------------------
+
+    const allowedTypes = [
+        "application/pdf",
+        "text/plain"
+    ];
+
+    const fileName =
+        file.name.toLowerCase();
+
+    const isPdf =
+        file.type === "application/pdf" ||
+        fileName.endsWith(".pdf");
+
+    const isTxt =
+        file.type === "text/plain" ||
+        fileName.endsWith(".txt");
+
+    if (!isPdf && !isTxt) {
+        showError(
+            "Only PDF and TXT files are supported."
+        );
+        return;
+    }
+
+
+    // -------------------- FormData --------------------
+
+    const formData = new FormData();
+
+    formData.append(
+        "file",
+        file
+    );
+
+
+    try {
+
+        const button = document.querySelector(
+            "#uploadDocumentMode button"
+        );
+
+        if (button) {
+            button.disabled = true;
+            button.innerText =
+                "Analyzing with AI...";
+        }
+
+
+        const response = await fetch(
+            `${API}/assess-ai`,
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok || !data.success) {
+
+            throw new Error(
+                data.error ||
+                "Unable to analyze document."
+            );
+        }
+
+
+        clearError();
+
+        populateAIResult(data);
+
+
+    } catch (error) {
+
+        showError(
+            error.message ||
+            "Unable to analyze document."
+        );
+
+    } finally {
+
+        const button = document.querySelector(
+            "#uploadDocumentMode button"
+        );
+
+        if (button) {
+            button.disabled = false;
+            button.innerText =
+                "Analyze with AI";
+        }
+    }
+}
+
+
+// -------------------- Upload PDF / TXT --------------------
+
+async function analyzeUploadedDocument() {
+
+    const fileInput =
+        document.getElementById(
+            "incident_document"
+        );
+
+    const file =
+        fileInput.files[0];
+
+    await analyzeDocument(file);
+}
+
+
+// -------------------- Type Description --------------------
+
+async function analyzeTypedDescription() {
+
+    clearError();
+
+    const textarea =
+        document.getElementById(
+            "typed_incident_description"
+        );
+
+    const text =
+        textarea.value.trim();
+
+
+    if (!text) {
+
+        showError(
+            "Please enter an incident description."
+        );
+
+        textarea.focus();
+
+        return;
+    }
+
+
+    if (text.length > 1000000) {
+
+        showError(
+            "Incident description cannot exceed 1,000,000 characters."
+        );
+
+        textarea.focus();
+
+        return;
+    }
+
+
+    // ------------------------------------------------------
+    // Turn typed text into a text/plain File.
+    //
+    // This lets us reuse the exact same /api/assess-ai
+    // backend endpoint that handles uploaded TXT files.
+    // ------------------------------------------------------
+
+    const file = new File(
+        [text],
+        "typed_incident_description.txt",
+        {
+            type: "text/plain"
+        }
+    );
+
+
+    await analyzeDocument(file);
+}
+
+
 // -------------------- Risk Assessment --------------------
 
 async function submitAssessment() {
 
     clearError();
 
-    const useCase = use_case.value.trim();
-    const desc = description.value.trim();
-    const users = Number(affected_users.value || 0);
+    const useCase =
+        use_case.value.trim();
+
+    const desc =
+        description.value.trim();
+
+    const users =
+        Number(
+            affected_users.value || 0
+        );
+
 
     if (!useCase) {
-        showError("Please enter a Use Case Name.");
+
+        showError(
+            "Please enter a Use Case Name."
+        );
+
         use_case.focus();
+
         return;
     }
+
 
     if (!desc) {
-        showError("Please enter a Description.");
+
+        showError(
+            "Please enter a Description."
+        );
+
         description.focus();
+
         return;
     }
+
 
     if (users < 0) {
-        showError("Affected Users cannot be negative.");
+
+        showError(
+            "Affected Users cannot be negative."
+        );
+
         affected_users.focus();
+
         return;
     }
 
-    const button = event.target;
+
+    const button =
+        event.target;
+
     button.disabled = true;
-    button.innerText = "Calculating...";
+
+    button.innerText =
+        "Calculating...";
+
 
     const payload = {
+
         use_case: useCase,
+
         description: desc,
-        personal_data: yesNo("personal_data"),
-        sensitive_data: yesNo("sensitive_data"),
-        external_ai: yesNo("external_ai"),
-        retention: yesNo("retention"),
-        consent: yesNo("consent"),
-        affected_users: users
+
+        personal_data:
+            yesNo("personal_data"),
+
+        sensitive_data:
+            yesNo("sensitive_data"),
+
+        external_ai:
+            yesNo("external_ai"),
+
+        retention:
+            yesNo("retention"),
+
+        consent:
+            yesNo("consent"),
+
+        affected_users:
+            users
     };
 
-    try {
-        const response = await fetch(`${API}/assess`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        });
 
-        const data = await response.json();
+    try {
+
+        const response =
+            await fetch(
+                `${API}/assess`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify(payload)
+                }
+            );
+
+
+        const data =
+            await response.json();
+
 
         if (!data.success) {
-            throw new Error(data.error);
+
+            throw new Error(
+                data.error
+            );
         }
+
 
         clearError();
 
-        riskResult.classList.remove("hidden");
+        riskResult.classList.remove(
+            "hidden"
+        );
+
 
         riskResult.innerHTML = `
-            <h2>Risk Assessment Result</h2>
+
+            <h2>
+                Risk Assessment Result
+            </h2>
 
             ${badge(data.risk_level)}
 
-            <h3>Risk Score = ${data.risk_score} / 6</h3>
+            <h3>
+                Risk Score =
+                ${data.risk_score} / 6
+            </h3>
 
-            <h4>Recommended DPO Actions</h4>
+            <h4>
+                Recommended DPO Actions
+            </h4>
 
             <ul>
+
                 ${data.recommendations
-                    .map(item => `<li>${item}</li>`)
+                    .map(
+                        item =>
+                            `<li>${item}</li>`
+                    )
                     .join("")}
+
             </ul>
+
         `;
 
+
         loadStats();
+
         loadAssessments();
 
+
     } catch (error) {
-        showError(error.message || "Unable to calculate risk.");
+
+        showError(
+            error.message ||
+            "Unable to calculate risk."
+        );
     }
 
+
     button.disabled = false;
-    button.innerText = "Calculate Risk";
+
+    button.innerText =
+        "Calculate Risk";
 }
 
 
-// -------------------- Incident Management --------------------
+// ==========================================================
+// INCIDENT MANAGEMENT
+// ==========================================================
 
 async function submitIncident() {
 
     clearError();
 
-    const type = incident_type.value.trim();
-    const desc = incident_description.value.trim();
-    const exposed = data_exposed.value.trim();
-    const users = Number(incident_users.value || 0);
+    const type =
+        incident_type.value.trim();
+
+    const desc =
+        incident_description.value.trim();
+
+    const exposed =
+        data_exposed.value.trim();
+
+    const users =
+        Number(
+            incident_users.value || 0
+        );
+
 
     if (!type) {
-        showError("Please enter an Incident Type.");
+
+        showError(
+            "Please enter an Incident Type."
+        );
+
         incident_type.focus();
+
         return;
     }
+
 
     if (!desc) {
-        showError("Please enter an Incident Description.");
+
+        showError(
+            "Please enter an Incident Description."
+        );
+
         incident_description.focus();
+
         return;
     }
+
 
     if (!exposed) {
-        showError("Please enter the Data Exposed.");
+
+        showError(
+            "Please enter the Data Exposed."
+        );
+
         data_exposed.focus();
+
         return;
     }
+
 
     if (users < 0) {
-        showError("Affected Users cannot be negative.");
+
+        showError(
+            "Affected Users cannot be negative."
+        );
+
         incident_users.focus();
+
         return;
     }
 
-    const button = event.target;
+
+    const button =
+        event.target;
+
     button.disabled = true;
-    button.innerText = "Assessing...";
+
+    button.innerText =
+        "Assessing...";
+
 
     const payload = {
-        incident_type: type,
-        description: desc,
-        data_exposed: exposed,
-        sensitive_data: yesNo("incident_sensitive"),
-        external_ai: yesNo("incident_external"),
-        affected_users: users
+
+        incident_type:
+            type,
+
+        description:
+            desc,
+
+        data_exposed:
+            exposed,
+
+        sensitive_data:
+            yesNo("incident_sensitive"),
+
+        external_ai:
+            yesNo("incident_external"),
+
+        affected_users:
+            users
     };
 
-    try {
-        const response = await fetch(`${API}/incidents`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        });
 
-        const data = await response.json();
+    try {
+
+        const response =
+            await fetch(
+                `${API}/incidents`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify(payload)
+                }
+            );
+
+
+        const data =
+            await response.json();
+
 
         if (!data.success) {
-            throw new Error(data.error);
+
+            throw new Error(
+                data.error
+            );
         }
+
 
         clearError();
 
-        incidentResult.classList.remove("hidden");
+        incidentResult.classList.remove(
+            "hidden"
+        );
+
 
         incidentResult.innerHTML = `
-            <h2>Incident Severity Result</h2>
+
+            <h2>
+                Incident Severity Result
+            </h2>
 
             ${badge(data.severity)}
 
-            <h3>Incident Score = ${data.incident_score}</h3>
+            <h3>
+                Incident Score =
+                ${data.incident_score}
+            </h3>
 
-            <h4>Recommended Response Actions</h4>
+            <h4>
+                Recommended Response Actions
+            </h4>
 
             <ul>
+
                 ${data.actions
-                    .map(item => `<li>${item}</li>`)
+                    .map(
+                        item =>
+                            `<li>${item}</li>`
+                    )
                     .join("")}
+
             </ul>
+
         `;
 
+
         loadStats();
+
         loadIncidents();
 
+
     } catch (error) {
-        showError(error.message || "Unable to assess incident.");
+
+        showError(
+            error.message ||
+            "Unable to assess incident."
+        );
     }
 
+
     button.disabled = false;
-    button.innerText = "Assess Incident";
+
+    button.innerText =
+        "Assess Incident";
 }
 
 
-// -------------------- Assessment History --------------------
+// ==========================================================
+// ASSESSMENT HISTORY
+// ==========================================================
 
 async function loadAssessments() {
 
     try {
 
-        const response = await fetch(`${API}/assessments`);
-        const data = await response.json();
+        const response =
+            await fetch(
+                `${API}/assessments`
+            );
 
-        assessmentTable.innerHTML = "";
+        const data =
+            await response.json();
 
-        data.data.forEach(item => {
 
-            assessmentTable.innerHTML += `
-                <tr>
-                    <td>${item.id}</td>
-                    <td>${item.use_case}</td>
-                    <td>${badge(item.risk_level)}</td>
-                    <td>${item.risk_score}</td>
-                    <td>${item.created_at}</td>
-                </tr>
-            `;
-        });
+        assessmentTable.innerHTML =
+            "";
+
+
+        data.data.forEach(
+            item => {
+
+                assessmentTable.innerHTML += `
+
+                    <tr>
+
+                        <td>
+                            ${item.id}
+                        </td>
+
+                        <td>
+                            ${item.use_case}
+                        </td>
+
+                        <td>
+                            ${badge(
+                                item.risk_level
+                            )}
+                        </td>
+
+                        <td>
+                            ${item.risk_score}
+                        </td>
+
+                        <td>
+                            ${item.created_at}
+                        </td>
+
+                    </tr>
+                `;
+            }
+        );
+
 
     } catch {
+
         assessmentTable.innerHTML =
             "<tr><td colspan='5'>Unable to load assessments.</td></tr>";
     }
 }
 
 
-// -------------------- Incident History --------------------
+// ==========================================================
+// INCIDENT HISTORY
+// ==========================================================
 
 async function loadIncidents() {
 
     try {
 
-        const response = await fetch(`${API}/incidents`);
-        const data = await response.json();
+        const response =
+            await fetch(
+                `${API}/incidents`
+            );
 
-        incidentTable.innerHTML = "";
+        const data =
+            await response.json();
 
-        data.data.forEach(item => {
 
-            incidentTable.innerHTML += `
-                <tr>
-                    <td>${item.id}</td>
-                    <td>${item.incident_type}</td>
-                    <td>${badge(item.severity)}</td>
-                    <td>${item.status}</td>
-                    <td>${item.created_at}</td>
-                </tr>
-            `;
-        });
+        incidentTable.innerHTML =
+            "";
+
+
+        data.data.forEach(
+            item => {
+
+                incidentTable.innerHTML += `
+
+                    <tr>
+
+                        <td>
+                            ${item.id}
+                        </td>
+
+                        <td>
+                            ${item.incident_type}
+                        </td>
+
+                        <td>
+                            ${badge(
+                                item.severity
+                            )}
+                        </td>
+
+                        <td>
+                            ${item.status}
+                        </td>
+
+                        <td>
+                            ${item.created_at}
+                        </td>
+
+                    </tr>
+
+                `;
+            }
+        );
+
 
     } catch {
+
         incidentTable.innerHTML =
             "<tr><td colspan='5'>Unable to load incidents.</td></tr>";
     }
 }
 
 
-// -------------------- Dashboard Stats --------------------
+// ==========================================================
+// DASHBOARD STATS
+// ==========================================================
 
 async function loadStats() {
 
     try {
 
-        const response = await fetch(`${API}/stats`);
-        const data = await response.json();
+        const response =
+            await fetch(
+                `${API}/stats`
+            );
+
+        const data =
+            await response.json();
+
 
         totalAssessments.innerText =
             data.total_assessments;
@@ -539,13 +1070,19 @@ async function loadStats() {
         criticalIncidents.innerText =
             data.critical_incidents;
 
+
     } catch {
-        console.log("Backend not running.");
+
+        console.log(
+            "Backend not running."
+        );
     }
 }
 
 
-// -------------------- Initial Load --------------------
+// ==========================================================
+// INITIAL LOAD
+// ==========================================================
 
 loadStats();
 loadAssessments();
