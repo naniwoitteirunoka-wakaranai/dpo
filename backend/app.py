@@ -688,8 +688,7 @@ DOCUMENT:
     )
 
 
-    content =
-        response.choices[0].message.content
+    content = response.choices[0].message.content
 
 
     return json.loads(
