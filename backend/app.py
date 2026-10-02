@@ -935,10 +935,7 @@ def health():
 )
 def assess():
 
-    data =
-        request.get_json(
-            silent=True
-        )
+    data = request.get_json(silent=True)
 
 
     if not data:
@@ -1377,10 +1374,7 @@ def assessments():
 )
 def incidents():
 
-    data =
-        request.get_json(
-            silent=True
-        )
+    data = request.get_json(silent=True)
 
 
     if not data:
