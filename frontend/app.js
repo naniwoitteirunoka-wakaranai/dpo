@@ -52,16 +52,9 @@ function clearError() {
 }
 
 
-// -------------------- Real-World Examples --------------------
-//
-// These examples are based on documented real-world GenAI
-// privacy/security incidents from 2023, 2024, 2025 and 2026.
-//
-// 2023 - OpenAI ChatGPT data exposure
-// 2024 - Australian Child Protection worker using ChatGPT
-// 2025 - Italian DPA action against DeepSeek
-// 2026 - OpenAI/Hugging Face security incident
-//
+// ==========================================================
+// REAL-WORLD EXAMPLES
+// ==========================================================
 
 const REAL_CASES = [
 
@@ -203,15 +196,9 @@ const REAL_CASES = [
 ];
 
 
-// -------------------- Load Real-World Example --------------------
-//
-// The same function is used by BOTH forms:
-//
-// loadExample("assessment")
-// loadExample("incident")
-//
-// Each click moves to the next real-world case.
-//
+// ==========================================================
+// LOAD REAL-WORLD EXAMPLE
+// ==========================================================
 
 function loadExample(type) {
 
@@ -240,6 +227,14 @@ function loadExample(type) {
         consent.value = data.consent;
 
         affected_users.value = data.affected_users;
+
+        // Hide AI extraction cards when switching to manual example
+        const aiParameters =
+            document.getElementById("aiExtractedParameters");
+
+        if (aiParameters) {
+            aiParameters.classList.add("hidden");
+        }
     }
 
     // -------------------- Incident Example --------------------
@@ -286,20 +281,96 @@ function loadExample(type) {
 //
 // use the same /api/assess-ai endpoint.
 //
-// The backend:
-// PDF/TXT -> text extraction/OCR -> Groq -> parameters
-// -> calculate_risk_score() -> risk level
+// Backend:
+//
+// PDF/TXT
+//    ↓
+// Text extraction / OCR
+//    ↓
+// Groq GPT-OSS-120B
+//    ↓
+// Extract parameters
+//    ↓
+// calculate_risk_score()
+//    ↓
+// Risk level
 //
 // ==========================================================
+
+
+// -------------------- AI Value Card Helper --------------------
+
+function setAIValueCard(
+    elementId,
+    value,
+    isNumber = false
+) {
+
+    const element =
+        document.getElementById(elementId);
+
+    if (!element) {
+        return;
+    }
+
+    // -------------------- Affected Users --------------------
+
+    if (isNumber) {
+
+        element.textContent =
+            value ?? 0;
+
+        element.classList.remove(
+            "yes",
+            "no"
+        );
+
+        element.classList.add(
+            "number"
+        );
+
+        return;
+    }
+
+
+    // -------------------- YES / NO --------------------
+
+    const booleanValue =
+        value === true ||
+        value === "true";
+
+
+    element.textContent =
+        booleanValue
+            ? "YES"
+            : "NO";
+
+
+    element.classList.remove(
+        "yes",
+        "no"
+    );
+
+
+    element.classList.add(
+        booleanValue
+            ? "yes"
+            : "no"
+    );
+}
 
 
 // -------------------- Populate AI Result --------------------
 
 function populateAIResult(data) {
 
-    const extracted = data.extracted_data;
+    const extracted =
+        data.extracted_data;
 
-    // -------------------- Fill existing Risk Form --------------------
+
+    // ======================================================
+    // Fill Existing Risk Assessment Form
+    // ======================================================
 
     use_case.value =
         extracted.use_case || "";
@@ -307,96 +378,198 @@ function populateAIResult(data) {
     description.value =
         extracted.description || "";
 
+
     personal_data.value =
-        String(extracted.personal_data);
+        String(
+            extracted.personal_data
+        );
+
 
     sensitive_data.value =
-        String(extracted.sensitive_data);
+        String(
+            extracted.sensitive_data
+        );
+
 
     external_ai.value =
-        String(extracted.external_ai);
+        String(
+            extracted.external_ai
+        );
+
 
     retention.value =
-        String(extracted.retention);
+        String(
+            extracted.retention
+        );
+
 
     consent.value =
-        String(extracted.consent);
+        String(
+            extracted.consent
+        );
+
 
     affected_users.value =
         extracted.affected_users ?? 0;
 
 
-    // -------------------- Show Result --------------------
+    // ======================================================
+    // Populate AI Extracted Parameter Cards
+    // ======================================================
 
-    riskResult.classList.remove("hidden");
+    setAIValueCard(
+        "ai_personal_data",
+        extracted.personal_data
+    );
+
+
+    setAIValueCard(
+        "ai_sensitive_data",
+        extracted.sensitive_data
+    );
+
+
+    setAIValueCard(
+        "ai_external_ai",
+        extracted.external_ai
+    );
+
+
+    setAIValueCard(
+        "ai_retention",
+        extracted.retention
+    );
+
+
+    setAIValueCard(
+        "ai_consent",
+        extracted.consent
+    );
+
+
+    setAIValueCard(
+        "ai_affected_users",
+        extracted.affected_users ?? 0,
+        true
+    );
+
+
+    // ======================================================
+    // SHOW AI EXTRACTED PARAMETERS
+    // ======================================================
+
+    const aiParameters =
+        document.getElementById(
+            "aiExtractedParameters"
+        );
+
+
+    if (aiParameters) {
+
+        aiParameters.classList.remove(
+            "hidden"
+        );
+    }
+
+
+    // ======================================================
+    // Show Risk Result
+    // ======================================================
+
+    riskResult.classList.remove(
+        "hidden"
+    );
+
 
     riskResult.innerHTML = `
-        <h2>AI Risk Assessment Result</h2>
+
+        <h2>
+            AI Risk Assessment Result
+        </h2>
 
         ${badge(data.risk_level)}
 
-        <h3>Risk Score = ${data.risk_score} / 6</h3>
+        <h3>
+            Risk Score = ${data.risk_score} / 6
+        </h3>
 
-        <h4>Recommended DPO Actions</h4>
+        <h4>
+            Recommended DPO Actions
+        </h4>
 
         <ul>
+
             ${data.recommendations
-                .map(item => `<li>${item}</li>`)
+                .map(
+                    item =>
+                        `<li>${item}</li>`
+                )
                 .join("")}
+
         </ul>
+
     `;
 
 
-    // -------------------- Refresh Dashboard --------------------
+    // ======================================================
+    // Refresh Dashboard
+    // ======================================================
 
     loadStats();
     loadAssessments();
 }
 
 
-// -------------------- Send Document to AI --------------------
+// ==========================================================
+// SEND DOCUMENT TO AI
+// ==========================================================
 
 async function analyzeDocument(file) {
 
     clearError();
 
+
     if (!file) {
+
         showError(
             "Please select a PDF or TXT file."
         );
+
         return;
     }
 
 
     // -------------------- File Validation --------------------
 
-    const allowedTypes = [
-        "application/pdf",
-        "text/plain"
-    ];
-
     const fileName =
         file.name.toLowerCase();
+
 
     const isPdf =
         file.type === "application/pdf" ||
         fileName.endsWith(".pdf");
 
+
     const isTxt =
         file.type === "text/plain" ||
         fileName.endsWith(".txt");
 
+
     if (!isPdf && !isTxt) {
+
         showError(
             "Only PDF and TXT files are supported."
         );
+
         return;
     }
 
 
     // -------------------- FormData --------------------
 
-    const formData = new FormData();
+    const formData =
+        new FormData();
+
 
     formData.append(
         "file",
@@ -406,31 +579,39 @@ async function analyzeDocument(file) {
 
     try {
 
-        const button = document.querySelector(
-            "#uploadDocumentMode button"
-        );
+        const button =
+            document.querySelector(
+                "#uploadDocumentMode button"
+            );
+
 
         if (button) {
+
             button.disabled = true;
+
             button.innerText =
                 "Analyzing with AI...";
         }
 
 
-        const response = await fetch(
-            `${API}/assess-ai`,
-            {
-                method: "POST",
-                body: formData
-            }
-        );
+        const response =
+            await fetch(
+                `${API}/assess-ai`,
+                {
+                    method: "POST",
+                    body: formData
+                }
+            );
 
 
         const data =
             await response.json();
 
 
-        if (!response.ok || !data.success) {
+        if (
+            !response.ok ||
+            !data.success
+        ) {
 
             throw new Error(
                 data.error ||
@@ -451,14 +632,19 @@ async function analyzeDocument(file) {
             "Unable to analyze document."
         );
 
+
     } finally {
 
-        const button = document.querySelector(
-            "#uploadDocumentMode button"
-        );
+        const button =
+            document.querySelector(
+                "#uploadDocumentMode button"
+            );
+
 
         if (button) {
+
             button.disabled = false;
+
             button.innerText =
                 "Analyze with AI";
         }
@@ -466,7 +652,9 @@ async function analyzeDocument(file) {
 }
 
 
-// -------------------- Upload PDF / TXT --------------------
+// ==========================================================
+// UPLOAD PDF / TXT
+// ==========================================================
 
 async function analyzeUploadedDocument() {
 
@@ -475,23 +663,29 @@ async function analyzeUploadedDocument() {
             "incident_document"
         );
 
+
     const file =
         fileInput.files[0];
+
 
     await analyzeDocument(file);
 }
 
 
-// -------------------- Type Description --------------------
+// ==========================================================
+// TYPE DESCRIPTION
+// ==========================================================
 
 async function analyzeTypedDescription() {
 
     clearError();
 
+
     const textarea =
         document.getElementById(
             "typed_incident_description"
         );
+
 
     const text =
         textarea.value.trim();
@@ -524,34 +718,40 @@ async function analyzeTypedDescription() {
     // ------------------------------------------------------
     // Turn typed text into a text/plain File.
     //
-    // This lets us reuse the exact same /api/assess-ai
-    // backend endpoint that handles uploaded TXT files.
+    // This reuses the exact same /api/assess-ai
+    // backend endpoint used for uploaded TXT files.
     // ------------------------------------------------------
 
-    const file = new File(
-        [text],
-        "typed_incident_description.txt",
-        {
-            type: "text/plain"
-        }
-    );
+    const file =
+        new File(
+            [text],
+            "typed_incident_description.txt",
+            {
+                type: "text/plain"
+            }
+        );
 
 
     await analyzeDocument(file);
 }
 
 
-// -------------------- Risk Assessment --------------------
+// ==========================================================
+// RISK ASSESSMENT
+// ==========================================================
 
 async function submitAssessment() {
 
     clearError();
 
+
     const useCase =
         use_case.value.trim();
 
+
     const desc =
         description.value.trim();
+
 
     const users =
         Number(
@@ -598,6 +798,7 @@ async function submitAssessment() {
     const button =
         event.target;
 
+
     button.disabled = true;
 
     button.innerText =
@@ -606,9 +807,11 @@ async function submitAssessment() {
 
     const payload = {
 
-        use_case: useCase,
+        use_case:
+            useCase,
 
-        description: desc,
+        description:
+            desc,
 
         personal_data:
             yesNo("personal_data"),
@@ -663,6 +866,7 @@ async function submitAssessment() {
 
         clearError();
 
+
         riskResult.classList.remove(
             "hidden"
         );
@@ -710,6 +914,7 @@ async function submitAssessment() {
             error.message ||
             "Unable to calculate risk."
         );
+
     }
 
 
@@ -728,14 +933,18 @@ async function submitIncident() {
 
     clearError();
 
+
     const type =
         incident_type.value.trim();
+
 
     const desc =
         incident_description.value.trim();
 
+
     const exposed =
         data_exposed.value.trim();
+
 
     const users =
         Number(
@@ -794,6 +1003,7 @@ async function submitIncident() {
     const button =
         event.target;
 
+
     button.disabled = true;
 
     button.innerText =
@@ -812,10 +1022,14 @@ async function submitIncident() {
             exposed,
 
         sensitive_data:
-            yesNo("incident_sensitive"),
+            yesNo(
+                "incident_sensitive"
+            ),
 
         external_ai:
-            yesNo("incident_external"),
+            yesNo(
+                "incident_external"
+            ),
 
         affected_users:
             users
@@ -854,6 +1068,7 @@ async function submitIncident() {
 
 
         clearError();
+
 
         incidentResult.classList.remove(
             "hidden"
@@ -902,6 +1117,7 @@ async function submitIncident() {
             error.message ||
             "Unable to assess incident."
         );
+
     }
 
 
@@ -924,6 +1140,7 @@ async function loadAssessments() {
             await fetch(
                 `${API}/assessments`
             );
+
 
         const data =
             await response.json();
@@ -963,6 +1180,7 @@ async function loadAssessments() {
                         </td>
 
                     </tr>
+
                 `;
             }
         );
@@ -988,6 +1206,7 @@ async function loadIncidents() {
             await fetch(
                 `${API}/incidents`
             );
+
 
         const data =
             await response.json();
@@ -1054,6 +1273,7 @@ async function loadStats() {
                 `${API}/stats`
             );
 
+
         const data =
             await response.json();
 
@@ -1061,11 +1281,14 @@ async function loadStats() {
         totalAssessments.innerText =
             data.total_assessments;
 
+
         highAssessments.innerText =
             data.high_critical_assessments;
 
+
         openIncidents.innerText =
             data.open_incidents;
+
 
         criticalIncidents.innerText =
             data.critical_incidents;
