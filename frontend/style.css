@@ -1,313 +1,535 @@
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Inter,Arial,sans-serif;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Inter, Arial, sans-serif;
 }
 
-:root{
-    --bg:#0B1120;
-    --surface:#111827;
-    --surface2:#1F2937;
-    --border:#334155;
-    --primary:#38BDF8;
-    --primary-dark:#0EA5E9;
-    --text:#F8FAFC;
-    --muted:#94A3B8;
+:root {
+    --bg: #0B1120;
+    --surface: #111827;
+    --surface2: #1F2937;
+    --border: #334155;
+
+    --primary: #38BDF8;
+    --primary-dark: #0EA5E9;
+
+    --text: #F8FAFC;
+    --muted: #94A3B8;
+
+    --tab-bg: #182235;
+    --tab-border: #31506F;
 }
 
-body{
-    background:var(--bg);
-    color:var(--text);
-    padding:30px;
+body {
+    background: var(--bg);
+    color: var(--text);
+    padding: 30px;
 }
 
-header{
-    text-align:center;
-    margin-bottom:30px;
+
+/* ==========================================================
+   HEADER
+   ========================================================== */
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
 }
 
-header h1{
-    color:var(--primary);
-    font-size:2rem;
-    margin-bottom:8px;
+header h1 {
+    color: var(--primary);
+    font-size: 2rem;
+    margin-bottom: 8px;
 }
 
-header p{
-    color:var(--muted);
+header p {
+    color: var(--muted);
 }
 
-.stats{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-    gap:16px;
-    margin-bottom:28px;
+
+/* ==========================================================
+   DASHBOARD STATS
+   ========================================================== */
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(180px, 1fr)
+    );
+
+    gap: 16px;
+    margin-bottom: 28px;
 }
 
-.card{
-    background:linear-gradient(180deg,#111827,#172033);
-    border:1px solid var(--border);
-    border-radius:16px;
-    padding:18px;
-    box-shadow:0 0 18px rgba(56,189,248,.08);
-    text-align:center;
+.card {
+    background: linear-gradient(
+        180deg,
+        #111827,
+        #172033
+    );
+
+    border: 1px solid var(--border);
+    border-radius: 16px;
+
+    padding: 18px;
+
+    box-shadow:
+        0 0 18px rgba(56, 189, 248, 0.08);
+
+    text-align: center;
 }
 
-.card h3{
-    color:var(--muted);
-    font-size:.9rem;
+.card h3 {
+    color: var(--muted);
+    font-size: 0.9rem;
 }
 
-.card span{
-    display:block;
-    margin-top:10px;
-    color:var(--primary);
-    font-size:30px;
-    font-weight:bold;
+.card span {
+    display: block;
+
+    margin-top: 10px;
+
+    color: var(--primary);
+
+    font-size: 30px;
+    font-weight: bold;
 }
 
-nav{
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-    justify-content:center;
-    margin-bottom:24px;
+
+/* ==========================================================
+   MAIN NAVIGATION
+   ========================================================== */
+
+nav {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    justify-content: center;
+
+    margin-bottom: 24px;
 }
 
-nav button{
-    background:#172554;
-    color:#E0F2FE;
-    border:1px solid #1D4ED8;
-    padding:12px 18px;
-    border-radius:10px;
-    cursor:pointer;
-    transition:.2s;
+nav button {
+    background: #172554;
+
+    color: #E0F2FE;
+
+    border: 1px solid #1D4ED8;
+
+    padding: 12px 18px;
+
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    transition: 0.2s;
 }
 
-nav button:hover{
-    background:#1D4ED8;
+nav button:hover {
+    background: #1D4ED8;
 }
 
-.panel{
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:20px;
-    padding:24px;
-    box-shadow:0 0 20px rgba(0,0,0,.35);
+
+/* ==========================================================
+   PANELS
+   ========================================================== */
+
+.panel {
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+
+    border-radius: 20px;
+
+    padding: 24px;
+
+    box-shadow:
+        0 0 20px rgba(0, 0, 0, 0.35);
 }
 
-.panel-title{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:20px;
+.panel-title {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 20px;
 }
 
-.tab{
-    display:none;
+
+/* ==========================================================
+   MAIN TABS
+   ========================================================== */
+
+.tab {
+    display: none;
 }
 
-.tab.active{
-    display:block;
+.tab.active {
+    display: block;
 }
 
-.grid2{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:18px;
-    margin:20px 0;
+
+/* ==========================================================
+   FORM GRID
+   ========================================================== */
+
+.grid2 {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(220px, 1fr)
+        );
+
+    gap: 18px;
+
+    margin: 20px 0;
 }
 
-label{
-    color:var(--muted);
-    font-size:.9rem;
+
+/* ==========================================================
+   FORM LABELS
+   ========================================================== */
+
+label {
+    color: var(--muted);
+
+    font-size: 0.9rem;
 }
 
-input,textarea,select{
-    width:100%;
-    margin-top:8px;
-    padding:12px;
-    border-radius:10px;
-    border:1px solid var(--border);
-    background:var(--surface2);
-    color:white;
+
+/* ==========================================================
+   INPUTS
+   ========================================================== */
+
+input,
+textarea,
+select {
+    width: 100%;
+
+    margin-top: 8px;
+
+    padding: 12px;
+
+    border-radius: 10px;
+
+    border: 1px solid var(--border);
+
+    background: var(--surface2);
+
+    color: white;
+
+    font-size: 15px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--primary);
+
+    box-shadow:
+        0 0 0 2px
+        rgba(56, 189, 248, 0.10);
 }
 
 input::placeholder,
-textarea::placeholder{
-    color:#64748B;
+textarea::placeholder {
+    color: #64748B;
 }
 
-textarea{
-    resize:vertical;
-    min-height:90px;
+textarea {
+    resize: vertical;
+
+    min-height: 90px;
 }
 
-button{
-    background:var(--primary-dark);
-    color:white;
-    border:none;
-    padding:12px 18px;
-    border-radius:10px;
-    cursor:pointer;
-    font-weight:600;
-    transition:.2s;
+
+/* ==========================================================
+   BUTTONS
+   ========================================================== */
+
+button {
+    background: var(--primary-dark);
+
+    color: white;
+
+    border: none;
+
+    padding: 12px 18px;
+
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    font-weight: 600;
+
+    transition:
+        background 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.1s ease;
 }
 
-button:hover{
-    background:var(--primary);
-    box-shadow:0 0 12px rgba(56,189,248,.35);
+button:hover {
+    background: var(--primary);
+
+    box-shadow:
+        0 0 12px
+        rgba(56, 189, 248, 0.35);
 }
 
-.secondary{
-    background:#374151;
+button:active {
+    transform: translateY(1px);
 }
 
-.secondary:hover{
-    background:#4B5563;
+button:disabled {
+    opacity: 0.65;
+
+    cursor: not-allowed;
+
+    box-shadow: none;
 }
 
-.export{
-    width:100%;
-    margin-top:24px;
-    background:#059669;
+
+/* ==========================================================
+   SECONDARY BUTTON
+   ========================================================== */
+
+.secondary {
+    background: #374151;
 }
 
-.export:hover{
-    background:#10B981;
+.secondary:hover {
+    background: #4B5563;
 }
 
-.result{
-    margin-top:22px;
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:18px;
-    padding:20px;
+
+/* ==========================================================
+   EXPORT
+   ========================================================== */
+
+.export {
+    width: 100%;
+
+    margin-top: 24px;
+
+    background: #059669;
 }
 
-.hidden{
-    display:none;
+.export:hover {
+    background: #10B981;
 }
 
-.result h3{
-    margin:10px 0;
+
+/* ==========================================================
+   RESULTS
+   ========================================================== */
+
+.result {
+    margin-top: 22px;
+
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+
+    border-radius: 18px;
+
+    padding: 20px;
 }
 
-.badge{
-    display:inline-block;
-    padding:6px 14px;
-    border-radius:999px;
-    font-weight:bold;
-    color:white;
-    margin:12px 0;
+.hidden {
+    display: none;
 }
 
-.LOW{
-    background:#16A34A;
+.result h3 {
+    margin: 10px 0;
 }
 
-.MEDIUM{
-    background:#F59E0B;
+
+/* ==========================================================
+   RISK BADGES
+   ========================================================== */
+
+.badge {
+    display: inline-block;
+
+    padding: 6px 14px;
+
+    border-radius: 999px;
+
+    font-weight: bold;
+
+    color: white;
+
+    margin: 12px 0;
 }
 
-.HIGH{
-    background:#EA580C;
+.LOW {
+    background: #16A34A;
 }
 
-.CRITICAL{
-    background:#DC2626;
-    box-shadow:0 0 12px rgba(220,38,38,.5);
+.MEDIUM {
+    background: #F59E0B;
 }
 
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:20px;
-    table-layout:fixed;
-    overflow:hidden;
-    border-radius:14px;
+.HIGH {
+    background: #EA580C;
 }
 
-thead{
-    background:#172554;
+.CRITICAL {
+    background: #DC2626;
+
+    box-shadow:
+        0 0 12px
+        rgba(220, 38, 38, 0.5);
 }
 
-th{
-    color:#E0F2FE;
-    padding:14px 16px;
-    text-align:left;          /* <-- align headers with data */
-    font-weight:600;
+
+/* ==========================================================
+   TABLE
+   ========================================================== */
+
+table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    margin-top: 20px;
+
+    table-layout: fixed;
+
+    overflow: hidden;
+
+    border-radius: 14px;
 }
 
-td{
-    padding:16px;
-    border-bottom:1px solid var(--border);
-    text-align:left;          /* <-- align row data */
-    vertical-align:middle;
+thead {
+    background: #172554;
 }
 
-tbody tr:nth-child(even){
-    background:#111827;
+th {
+    color: #E0F2FE;
+
+    padding: 14px 16px;
+
+    text-align: left;
+
+    font-weight: 600;
 }
 
-tbody tr:hover{
-    background:#1E293B;
+td {
+    padding: 16px;
+
+    border-bottom:
+        1px solid var(--border);
+
+    text-align: left;
+
+    vertical-align: middle;
 }
 
-ul{
-    margin-top:10px;
-    padding-left:22px;
+tbody tr:nth-child(even) {
+    background: #111827;
 }
 
-li{
-    margin:6px 0;
+tbody tr:hover {
+    background: #1E293B;
 }
 
-footer{
-    margin-top:28px;
+
+/* ==========================================================
+   LISTS
+   ========================================================== */
+
+ul {
+    margin-top: 10px;
+
+    padding-left: 22px;
 }
 
-@media(max-width:700px){
-    body{
-        padding:16px;
-    }
-
-    nav{
-        justify-content:flex-start;
-    }
+li {
+    margin: 6px 0;
 }
+
+
+/* ==========================================================
+   FOOTER
+   ========================================================== */
+
+footer {
+    margin-top: 28px;
+}
+
 
 /* ==========================================================
    RISK ASSESSMENT INPUT TABS
    ========================================================== */
 
 .input-tabs {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 24px;
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    margin-bottom: 24px;
 }
 
 .input-tab {
-  padding: 14px 22px;
-  border: 1px solid #31506f;
-  border-radius: 10px;
-  background: #182235;
-  color: #9bb3d1;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s ease;
+    padding: 12px 20px;
+
+    border: 1px solid var(--tab-border);
+
+    border-radius: 10px;
+
+    background: var(--tab-bg);
+
+    color: var(--muted);
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .input-tab:hover {
-  background: #202d43;
-  color: #ffffff;
+    background: #202D43;
+
+    color: var(--text);
+
+    border-color: #42617F;
+
+    box-shadow: none;
 }
 
 .input-tab.active {
-  background: #159ddd;
-  border-color: #159ddd;
-  color: #ffffff;
+    background: var(--primary-dark);
+
+    border-color: var(--primary-dark);
+
+    color: white;
+
+    box-shadow:
+        0 0 12px
+        rgba(14, 165, 233, 0.18);
 }
 
 
@@ -316,22 +538,232 @@ footer{
    ========================================================== */
 
 .risk-input-mode {
-  display: none;
+    display: none;
 }
 
 .risk-input-mode.active {
-  display: block;
+    display: block;
 }
 
 
 /* ==========================================================
-   DOCUMENT INPUT TABS
+   DOCUMENT INPUT MODES
    ========================================================== */
 
 .document-input-mode {
-  display: none;
+    display: none;
 }
 
 .document-input-mode.active {
-  display: block;
+    display: block;
+}
+
+
+/* ==========================================================
+   DOCUMENT INPUT SECTION
+   ========================================================== */
+
+#uploadRiskMode {
+    padding-top: 2px;
+}
+
+#uploadRiskMode > .input-tabs {
+    margin-bottom: 26px;
+}
+
+
+/* ==========================================================
+   FILE UPLOAD
+   ========================================================== */
+
+#incident_document {
+    width: 100%;
+
+    padding: 10px;
+
+    margin-top: 8px;
+
+    background: var(--surface2);
+
+    color: var(--muted);
+
+    border: 1px solid var(--border);
+
+    border-radius: 10px;
+
+    cursor: pointer;
+}
+
+
+/*
+   Chrome / Edge / modern browsers
+
+   This replaces the ugly native "Choose File"
+   button while keeping the actual file input.
+*/
+
+#incident_document::file-selector-button {
+    background: var(--primary-dark);
+
+    color: white;
+
+    border: none;
+
+    border-radius: 8px;
+
+    padding: 9px 14px;
+
+    margin-right: 12px;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+#incident_document::file-selector-button:hover {
+    background: var(--primary);
+
+    box-shadow:
+        0 0 10px
+        rgba(56, 189, 248, 0.25);
+}
+
+
+/* ==========================================================
+   DOCUMENT HELPER TEXT
+   ========================================================== */
+
+#uploadDocumentMode p,
+#typeDocumentMode p {
+    margin-top: 10px;
+
+    color: var(--muted);
+
+    font-size: 0.9rem;
+
+    line-height: 1.5;
+}
+
+
+/* ==========================================================
+   DOCUMENT ANALYZE BUTTON
+   ========================================================== */
+
+#uploadDocumentMode > div button,
+#typeDocumentMode > button,
+#uploadDocumentMode button {
+    margin-top: 14px;
+}
+
+
+/* ==========================================================
+   AI EXTRACTED PARAMETERS
+   ========================================================== */
+
+.ai-extracted {
+    margin-top: 30px;
+
+    padding-top: 24px;
+
+    border-top:
+        1px solid var(--border);
+}
+
+.ai-extracted h3 {
+    margin-bottom: 18px;
+
+    color: var(--text);
+
+    font-size: 1.1rem;
+}
+
+
+/* ==========================================================
+   AI VALUE CARDS
+   ========================================================== */
+
+.ai-value-card {
+    width: 100%;
+
+    min-height: 44px;
+
+    margin-top: 8px;
+
+    padding: 12px;
+
+    display: flex;
+
+    align-items: center;
+
+    border-radius: 10px;
+
+    border: 1px solid var(--border);
+
+    background: var(--surface2);
+
+    color: var(--text);
+
+    font-size: 15px;
+
+    font-weight: 500;
+
+    cursor: default;
+
+    user-select: none;
+}
+
+.ai-value-card.yes {
+    color: var(--text);
+}
+
+.ai-value-card.no {
+    color: var(--muted);
+}
+
+.ai-value-card.number {
+    color: var(--text);
+}
+
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+
+@media (max-width: 700px) {
+
+    body {
+        padding: 16px;
+    }
+
+    nav {
+        justify-content: flex-start;
+    }
+
+    .panel {
+        padding: 18px;
+    }
+
+    .panel-title {
+        align-items: flex-start;
+
+        gap: 14px;
+
+        flex-direction: column;
+    }
+
+    .input-tabs {
+        width: 100%;
+    }
+
+    .input-tab {
+        flex: 1;
+    }
 }
