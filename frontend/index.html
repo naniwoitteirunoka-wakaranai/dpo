@@ -64,9 +64,12 @@
           <div class="panel-title">
             <h2>GenAI Privacy Risk Assessment</h2>
 
-            <button onclick="loadExample('assessment')">
-              Load Example
-            </button>
+            <button
+    id="assessmentLoadExampleButton"
+    onclick="loadExample('assessment')"
+>
+    Load Example
+</button>
           </div>
 
 
@@ -612,102 +615,6 @@
       </button>
 
     </footer>
-
-
-    <!-- ========================================================
-         LOCAL INPUT TAB FUNCTIONS
-    ========================================================= -->
-
-
-    <script>
-
-      function showRiskInputMode(mode) {
-
-        const manualMode =
-          document.getElementById("manualRiskMode");
-
-        const uploadMode =
-          document.getElementById("uploadRiskMode");
-
-        const manualTab =
-          document.getElementById("manualRiskTab");
-
-        const uploadTab =
-          document.getElementById("uploadRiskTab");
-
-
-        if (mode === "manual") {
-
-          manualMode.classList.add("active");
-
-          uploadMode.classList.remove("active");
-
-          manualTab.classList.add("active");
-
-          uploadTab.classList.remove("active");
-
-        }
-
-
-        if (mode === "upload") {
-
-          manualMode.classList.remove("active");
-
-          uploadMode.classList.add("active");
-
-          manualTab.classList.remove("active");
-
-          uploadTab.classList.add("active");
-
-        }
-
-      }
-
-
-
-      function showDocumentInputMode(mode) {
-
-        const uploadMode =
-          document.getElementById("uploadDocumentMode");
-
-        const typeMode =
-          document.getElementById("typeDocumentMode");
-
-        const uploadTab =
-          document.getElementById("uploadDocumentTab");
-
-        const typeTab =
-          document.getElementById("typeDocumentTab");
-
-
-        if (mode === "upload") {
-
-          uploadMode.classList.add("active");
-
-          typeMode.classList.remove("active");
-
-          uploadTab.classList.add("active");
-
-          typeTab.classList.remove("active");
-
-        }
-
-
-        if (mode === "type") {
-
-          uploadMode.classList.remove("active");
-
-          typeMode.classList.add("active");
-
-          uploadTab.classList.remove("active");
-
-          typeTab.classList.add("active");
-
-        }
-
-      }
-
-    </script>
 
 
     <script src="app.js"></script>
