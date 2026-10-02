@@ -6,6 +6,7 @@
     <title>GENAI DPO PRIVACY FRAMEWORK</title>
     <link rel="stylesheet" href="style.css" />
   </head>
+
   <body>
     <header>
       <h1>GenAI DPO Privacy Framework</h1>
@@ -37,135 +38,333 @@
     <nav>
       <button onclick="showTab('risk')">Risk Assessment</button>
       <button onclick="showTab('incident')">Incident Management</button>
-      <button onclick="showTab('assessmentHistory')">Assessment History</button>
-      <button onclick="showTab('incidentHistory')">Incident History</button>
+      <button onclick="showTab('assessmentHistory')">
+        Assessment History
+      </button>
+      <button onclick="showTab('incidentHistory')">
+        Incident History
+      </button>
     </nav>
 
     <main>
+
       <!-- Risk Assessment -->
       <section id="risk" class="tab active">
         <div class="panel">
+
           <div class="panel-title">
             <h2>GenAI Privacy Risk Assessment</h2>
-          <button onclick="loadExample('assessment')">
-    Load Example
-</button>
+
+            <button onclick="loadExample('assessment')">
+              Load Example
+            </button>
           </div>
 
-          <input id="use_case" placeholder="Use Case Name" />
+          <!-- Risk Assessment Input Tabs -->
+          <div class="input-tabs">
+            <button
+              id="manualRiskTab"
+              class="input-tab active"
+              onclick="showRiskInputMode('manual')"
+            >
+              Manual Entry
+            </button>
 
-          <textarea id="description" placeholder="Description"></textarea>
-
-          <div class="grid2">
-            <label
-              >Personal Data
-              <select id="personal_data">
-                <option value="true">YES</option>
-                <option value="false">NO</option>
-              </select>
-            </label>
-
-            <label
-              >Sensitive Personal Data
-              <select id="sensitive_data">
-                <option value="true">YES</option>
-                <option value="false">NO</option>
-              </select>
-            </label>
-
-            <label
-              >External GenAI Provider
-              <select id="external_ai">
-                <option value="true">YES</option>
-                <option value="false">NO</option>
-              </select>
-            </label>
-
-            <label
-              >Data Retention
-              <select id="retention">
-                <option value="true">YES</option>
-                <option value="false">NO</option>
-              </select>
-            </label>
-
-            <label
-              >Consent / Legal Basis
-              <select id="consent">
-                <option value="true">YES</option>
-                <option value="false">NO</option>
-              </select>
-            </label>
-
-            <label
-              >Affected Users
-              <input id="affected_users" type="number" value="0" />
-            </label>
+            <button
+              id="uploadRiskTab"
+              class="input-tab"
+              onclick="showRiskInputMode('upload')"
+            >
+              Upload Incident Description
+            </button>
           </div>
 
-          <button onclick="submitAssessment()">Calculate Risk</button>
+
+          <!-- ==================================================
+               MANUAL ENTRY
+          ================================================== -->
+
+          <div id="manualRiskMode" class="risk-input-mode active">
+
+            <input
+              id="use_case"
+              placeholder="Use Case Name"
+            />
+
+            <textarea
+              id="description"
+              placeholder="Description"
+            ></textarea>
+
+            <div class="grid2">
+
+              <label>
+                Personal Data
+
+                <select id="personal_data">
+                  <option value="true">YES</option>
+                  <option value="false">NO</option>
+                </select>
+              </label>
+
+              <label>
+                Sensitive Personal Data
+
+                <select id="sensitive_data">
+                  <option value="true">YES</option>
+                  <option value="false">NO</option>
+                </select>
+              </label>
+
+              <label>
+                External GenAI Provider
+
+                <select id="external_ai">
+                  <option value="true">YES</option>
+                  <option value="false">NO</option>
+                </select>
+              </label>
+
+              <label>
+                Data Retention
+
+                <select id="retention">
+                  <option value="true">YES</option>
+                  <option value="false">NO</option>
+                </select>
+              </label>
+
+              <label>
+                Consent / Legal Basis
+
+                <select id="consent">
+                  <option value="true">YES</option>
+                  <option value="false">NO</option>
+                </select>
+              </label>
+
+              <label>
+                Affected Users
+
+                <input
+                  id="affected_users"
+                  type="number"
+                  value="0"
+                />
+              </label>
+
+            </div>
+
+            <button onclick="submitAssessment()">
+              Calculate Risk
+            </button>
+
+          </div>
+
+
+          <!-- ==================================================
+               UPLOAD INCIDENT DESCRIPTION
+          ================================================== -->
+
+          <div
+            id="uploadRiskMode"
+            class="risk-input-mode"
+          >
+
+            <!-- Upload / Type Tabs -->
+
+            <div class="input-tabs">
+
+              <button
+                id="uploadDocumentTab"
+                class="input-tab active"
+                onclick="showDocumentInputMode('upload')"
+              >
+                Upload PDF / TXT
+              </button>
+
+              <button
+                id="typeDocumentTab"
+                class="input-tab"
+                onclick="showDocumentInputMode('type')"
+              >
+                Type Description
+              </button>
+
+            </div>
+
+
+            <!-- ==================================================
+                 UPLOAD PDF / TXT
+            ================================================== -->
+
+            <div
+              id="uploadDocumentMode"
+              class="document-input-mode active"
+            >
+
+              <label>
+                Incident Description File
+              </label>
+
+              <input
+                id="incident_document"
+                type="file"
+                accept=".pdf,.txt,application/pdf,text/plain"
+              />
+
+              <p>
+                Upload a PDF or TXT incident description.
+                The document will be analyzed using AI to
+                identify the relevant privacy-risk parameters.
+              </p>
+
+              <button
+                type="button"
+                onclick="analyzeUploadedDocument()"
+              >
+                Analyze with AI
+              </button>
+
+            </div>
+
+
+            <!-- ==================================================
+                 TYPE DESCRIPTION
+            ================================================== -->
+
+            <div
+              id="typeDocumentMode"
+              class="document-input-mode"
+            >
+
+              <label>
+                Incident Description
+              </label>
+
+              <textarea
+                id="typed_incident_description"
+                maxlength="1000000"
+                placeholder="Type or paste the incident description here..."
+              ></textarea>
+
+              <p>
+                Maximum 1,000,000 characters.
+              </p>
+
+              <button
+                type="button"
+                onclick="analyzeTypedDescription()"
+              >
+                Analyze with AI
+              </button>
+
+            </div>
+
+          </div>
+
         </div>
 
         <div id="riskResult" class="result hidden"></div>
       </section>
 
+
       <!-- Incident -->
       <section id="incident" class="tab">
+
         <div class="panel">
+
           <div class="panel-title">
+
             <h2>GenAI Privacy Incident Management</h2>
+
             <button onclick="loadExample('incident')">
-    Load Example
-</button>
+              Load Example
+            </button>
+
           </div>
 
-          <input id="incident_type" placeholder="Incident Type" />
+          <input
+            id="incident_type"
+            placeholder="Incident Type"
+          />
 
           <textarea
             id="incident_description"
             placeholder="Incident Description"
           ></textarea>
 
-          <textarea id="data_exposed" placeholder="Data Exposed"></textarea>
+          <textarea
+            id="data_exposed"
+            placeholder="Data Exposed"
+          ></textarea>
 
           <div class="grid2">
-            <label
-              >Sensitive Data
+
+            <label>
+              Sensitive Data
+
               <select id="incident_sensitive">
                 <option value="true">YES</option>
                 <option value="false">NO</option>
               </select>
             </label>
 
-            <label
-              >External AI Involved
+            <label>
+              External AI Involved
+
               <select id="incident_external">
                 <option value="true">YES</option>
                 <option value="false">NO</option>
               </select>
             </label>
 
-            <label
-              >Affected Users
-              <input id="incident_users" type="number" value="0" />
+            <label>
+              Affected Users
+
+              <input
+                id="incident_users"
+                type="number"
+                value="0"
+              />
             </label>
+
           </div>
 
-          <button onclick="submitIncident()">Assess Incident</button>
+          <button onclick="submitIncident()">
+            Assess Incident
+          </button>
+
         </div>
 
-        <div id="incidentResult" class="result hidden"></div>
+        <div
+          id="incidentResult"
+          class="result hidden"
+        ></div>
+
       </section>
 
+
       <!-- Assessment History -->
-      <section id="assessmentHistory" class="tab">
+      <section
+        id="assessmentHistory"
+        class="tab"
+      >
+
         <div class="panel">
+
           <div class="panel-title">
+
             <h2>Assessment History</h2>
-            <button onclick="loadAssessments()">Refresh</button>
+
+            <button onclick="loadAssessments()">
+              Refresh
+            </button>
+
           </div>
 
           <table>
+
             <thead>
               <tr>
                 <th>ID</th>
@@ -177,20 +376,34 @@
             </thead>
 
             <tbody id="assessmentTable"></tbody>
+
           </table>
+
         </div>
+
       </section>
 
+
       <!-- Incident History -->
-      <section id="incidentHistory" class="tab">
+      <section
+        id="incidentHistory"
+        class="tab"
+      >
+
         <div class="panel">
+
           <div class="panel-title">
+
             <h2>Incident History</h2>
 
-            <button onclick="loadIncidents()">Refresh</button>
+            <button onclick="loadIncidents()">
+              Refresh
+            </button>
+
           </div>
 
           <table>
+
             <thead>
               <tr>
                 <th>ID</th>
@@ -202,20 +415,97 @@
             </thead>
 
             <tbody id="incidentTable"></tbody>
+
           </table>
+
         </div>
+
       </section>
+
     </main>
 
+
     <footer>
+
       <button
         class="export"
         onclick="window.open('https://dpo-kng0.onrender.com/api/export')"
       >
         Export Excel Report
       </button>
+
     </footer>
 
+
+    <!-- ========================================================
+         LOCAL INPUT TAB FUNCTIONS
+    ========================================================= -->
+
+    <script>
+      function showRiskInputMode(mode) {
+        const manualMode =
+          document.getElementById("manualRiskMode");
+
+        const uploadMode =
+          document.getElementById("uploadRiskMode");
+
+        const manualTab =
+          document.getElementById("manualRiskTab");
+
+        const uploadTab =
+          document.getElementById("uploadRiskTab");
+
+        if (mode === "manual") {
+          manualMode.classList.add("active");
+          uploadMode.classList.remove("active");
+
+          manualTab.classList.add("active");
+          uploadTab.classList.remove("active");
+        }
+
+        if (mode === "upload") {
+          manualMode.classList.remove("active");
+          uploadMode.classList.add("active");
+
+          manualTab.classList.remove("active");
+          uploadTab.classList.add("active");
+        }
+      }
+
+
+      function showDocumentInputMode(mode) {
+        const uploadMode =
+          document.getElementById("uploadDocumentMode");
+
+        const typeMode =
+          document.getElementById("typeDocumentMode");
+
+        const uploadTab =
+          document.getElementById("uploadDocumentTab");
+
+        const typeTab =
+          document.getElementById("typeDocumentTab");
+
+        if (mode === "upload") {
+          uploadMode.classList.add("active");
+          typeMode.classList.remove("active");
+
+          uploadTab.classList.add("active");
+          typeTab.classList.remove("active");
+        }
+
+        if (mode === "type") {
+          uploadMode.classList.remove("active");
+          typeMode.classList.add("active");
+
+          uploadTab.classList.remove("active");
+          typeTab.classList.add("active");
+        }
+      }
+    </script>
+
+
     <script src="app.js"></script>
+
   </body>
 </html>
