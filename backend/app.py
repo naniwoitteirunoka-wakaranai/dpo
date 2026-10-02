@@ -965,34 +965,29 @@ def assess():
             )
 
 
-    score =
-        calculate_risk_score(
-            data["personal_data"],
-            data["sensitive_data"],
-            data["external_ai"],
-            data["retention"],
-            data["consent"]
-        )
+    score = calculate_risk_score(
+        data["personal_data"],
+        data["sensitive_data"],
+        data["external_ai"],
+        data["retention"],
+        data["consent"]
+    )
 
 
-    level =
-        classify_risk(
-            score
-        )
+    level = classify_risk(
+        score
+    )
 
 
-    recommendations =
-        generate_recommendations(
-            data,
-            level
-        )
+    recommendations = generate_recommendations(
+        data,
+        level
+    )
 
 
-    conn =
-        get_db()
+    conn = get_db()
 
-    cur =
-        conn.cursor()
+    cur = conn.cursor()
 
 
     cur.execute("""
@@ -1052,8 +1047,7 @@ def assess():
     conn.commit()
 
 
-    assessment_id =
-        cur.lastrowid
+    assessment_id = cur.lastrowid
 
 
     conn.close()
@@ -1095,8 +1089,7 @@ def assess_ai():
         )
 
 
-    file =
-        request.files["file"]
+    file = request.files["file"]
 
 
     if not file.filename:
@@ -1108,88 +1101,75 @@ def assess_ai():
 
     try:
 
-        document_text =
-            extract_document_text(
-                file
-            )
+        document_text = extract_document_text(
+            file
+        )
 
 
-        ai_data =
-            extract_risk_parameters_with_ai(
-                document_text
-            )
+        ai_data = extract_risk_parameters_with_ai(
+            document_text
+        )
 
 
-        ai_data["personal_data"] =
-            bool(
-                ai_data["personal_data"]
-            )
+        ai_data["personal_data"] = bool(
+            ai_data["personal_data"]
+        )
 
 
-        ai_data["sensitive_data"] =
-            bool(
-                ai_data["sensitive_data"]
-            )
+        ai_data["sensitive_data"] = bool(
+            ai_data["sensitive_data"]
+        )
 
 
-        ai_data["external_ai"] =
-            bool(
-                ai_data["external_ai"]
-            )
+        ai_data["external_ai"] = bool(
+            ai_data["external_ai"]
+        )
 
 
-        ai_data["retention"] =
-            bool(
-                ai_data["retention"]
-            )
+        ai_data["retention"] = bool(
+            ai_data["retention"]
+        )
 
 
-        ai_data["consent"] =
-            bool(
-                ai_data["consent"]
-            )
+        ai_data["consent"] = bool(
+            ai_data["consent"]
+        )
 
 
-        ai_data["affected_users"] =
-            max(
-                0,
-                int(
-                    ai_data.get(
-                        "affected_users",
-                        0
-                    )
+        ai_data["affected_users"] = max(
+            0,
+            int(
+                ai_data.get(
+                    "affected_users",
+                    0
                 )
             )
+        )
 
 
-        score =
-            calculate_risk_score(
-                ai_data["personal_data"],
-                ai_data["sensitive_data"],
-                ai_data["external_ai"],
-                ai_data["retention"],
-                ai_data["consent"]
-            )
+        score = calculate_risk_score(
+            ai_data["personal_data"],
+            ai_data["sensitive_data"],
+            ai_data["external_ai"],
+            ai_data["retention"],
+            ai_data["consent"]
+        )
 
 
-        level =
-            classify_risk(
-                score
-            )
+        level = classify_risk(
+            score
+        )
 
 
-        recommendations =
-            generate_recommendations(
-                ai_data,
-                level
-            )
+        recommendations = generate_recommendations(
+            ai_data,
+            level
+        )
 
 
-        conn =
-            get_db()
+        conn = get_db()
 
-        cur =
-            conn.cursor()
+        cur = conn.cursor()
 
 
         cur.execute("""
@@ -1246,8 +1226,7 @@ def assess_ai():
         conn.commit()
 
 
-        assessment_id =
-            cur.lastrowid
+        assessment_id = cur.lastrowid
 
 
         conn.close()
@@ -1334,16 +1313,14 @@ def assess_ai():
 )
 def assessments():
 
-    conn =
-        get_db()
+    conn = get_db()
 
 
-    rows =
-        conn.execute("""
-            SELECT *
-            FROM assessments
-            ORDER BY id DESC
-        """).fetchall()
+    rows = conn.execute("""
+        SELECT *
+        FROM assessments
+        ORDER BY id DESC
+    """).fetchall()
 
 
     conn.close()
@@ -1403,10 +1380,9 @@ def incidents():
             )
 
 
-    users =
-        int(
-            data["affected_users"]
-        )
+    users = int(
+        data["affected_users"]
+    )
 
 
     if users < 0:
@@ -1416,33 +1392,28 @@ def incidents():
         )
 
 
-    score =
-        calculate_incident_score(
-            data["sensitive_data"],
-            data["external_ai"],
-            users,
-            data["data_exposed"]
-        )
+    score = calculate_incident_score(
+        data["sensitive_data"],
+        data["external_ai"],
+        users,
+        data["data_exposed"]
+    )
 
 
-    severity =
-        classify_incident(
-            score
-        )
+    severity = classify_incident(
+        score
+    )
 
 
-    actions =
-        incident_actions(
-            severity,
-            data
-        )
+    actions = incident_actions(
+        severity,
+        data
+    )
 
 
-    conn =
-        get_db()
+    conn = get_db()
 
-    cur =
-        conn.cursor()
+    cur = conn.cursor()
 
 
     cur.execute("""
@@ -1490,8 +1461,7 @@ def incidents():
     conn.commit()
 
 
-    incident_id =
-        cur.lastrowid
+    incident_id = cur.lastrowid
 
 
     conn.close()
@@ -1537,8 +1507,7 @@ def incident_ai():
         )
 
 
-    file =
-        request.files["file"]
+    file = request.files["file"]
 
 
     if not file.filename:
@@ -1554,81 +1523,73 @@ def incident_ai():
         # Extract document text
         # --------------------------------------------------
 
-        document_text =
-            extract_document_text(
-                file
-            )
+        document_text = extract_document_text(
+            file
+        )
 
 
         # --------------------------------------------------
         # AI extracts incident parameters
         # --------------------------------------------------
 
-        ai_data =
-            extract_incident_parameters_with_ai(
-                document_text
-            )
+        ai_data = extract_incident_parameters_with_ai(
+            document_text
+        )
 
 
         # --------------------------------------------------
         # Normalize extracted values
         # --------------------------------------------------
 
-        ai_data["incident_type"] =
-            str(
+        ai_data["incident_type"] = str(
+            ai_data.get(
+                "incident_type",
+                "GenAI Privacy Incident"
+            )
+        ).strip()
+
+
+        ai_data["description"] = str(
+            ai_data.get(
+                "description",
+                ""
+            )
+        ).strip()
+
+
+        ai_data["data_exposed"] = str(
+            ai_data.get(
+                "data_exposed",
+                "Unknown"
+            )
+        ).strip()
+
+
+        ai_data["sensitive_data"] = bool(
+            ai_data.get(
+                "sensitive_data",
+                False
+            )
+        )
+
+
+        ai_data["external_ai"] = bool(
+            ai_data.get(
+                "external_ai",
+                False
+            )
+        )
+
+
+        ai_data["affected_users"] = max(
+            0,
+            int(
                 ai_data.get(
-                    "incident_type",
-                    "GenAI Privacy Incident"
-                )
-            ).strip()
-
-
-        ai_data["description"] =
-            str(
-                ai_data.get(
-                    "description",
-                    ""
-                )
-            ).strip()
-
-
-        ai_data["data_exposed"] =
-            str(
-                ai_data.get(
-                    "data_exposed",
-                    "Unknown"
-                )
-            ).strip()
-
-
-        ai_data["sensitive_data"] =
-            bool(
-                ai_data.get(
-                    "sensitive_data",
-                    False
+                    "affected_users",
+                    0
                 )
             )
-
-
-        ai_data["external_ai"] =
-            bool(
-                ai_data.get(
-                    "external_ai",
-                    False
-                )
-            )
-
-
-        ai_data["affected_users"] =
-            max(
-                0,
-                int(
-                    ai_data.get(
-                        "affected_users",
-                        0
-                    )
-                )
-            )
+        )
 
 
         # --------------------------------------------------
@@ -1639,26 +1600,23 @@ def incident_ai():
         # The deterministic Python incident engine does.
         # --------------------------------------------------
 
-        score =
-            calculate_incident_score(
-                ai_data["sensitive_data"],
-                ai_data["external_ai"],
-                ai_data["affected_users"],
-                ai_data["data_exposed"]
-            )
+        score = calculate_incident_score(
+            ai_data["sensitive_data"],
+            ai_data["external_ai"],
+            ai_data["affected_users"],
+            ai_data["data_exposed"]
+        )
 
 
-        severity =
-            classify_incident(
-                score
-            )
+        severity = classify_incident(
+            score
+        )
 
 
-        actions =
-            incident_actions(
-                severity,
-                ai_data
-            )
+        actions = incident_actions(
+            severity,
+            ai_data
+        )
 
 
         # --------------------------------------------------
@@ -1666,11 +1624,9 @@ def incident_ai():
         # a manually assessed incident.
         # --------------------------------------------------
 
-        conn =
-            get_db()
+        conn = get_db()
 
-        cur =
-            conn.cursor()
+        cur = conn.cursor()
 
 
         cur.execute("""
@@ -1718,8 +1674,7 @@ def incident_ai():
         conn.commit()
 
 
-        incident_id =
-            cur.lastrowid
+        incident_id = cur.lastrowid
 
 
         conn.close()
@@ -1804,16 +1759,14 @@ def incident_ai():
 )
 def get_incidents():
 
-    conn =
-        get_db()
+    conn = get_db()
 
 
-    rows =
-        conn.execute("""
-            SELECT *
-            FROM incidents
-            ORDER BY id DESC
-        """).fetchall()
+    rows = conn.execute("""
+        SELECT *
+        FROM incidents
+        ORDER BY id DESC
+    """).fetchall()
 
 
     conn.close()
@@ -1844,38 +1797,33 @@ def get_incidents():
 )
 def stats():
 
-    conn =
-        get_db()
+    conn = get_db()
 
 
-    total_assessments =
-        conn.execute(
-            "SELECT COUNT(*) FROM assessments"
-        ).fetchone()[0]
+    total_assessments = conn.execute(
+        "SELECT COUNT(*) FROM assessments"
+    ).fetchone()[0]
 
 
-    high_assessments =
-        conn.execute("""
-            SELECT COUNT(*)
-            FROM assessments
-            WHERE risk_level IN ('HIGH','CRITICAL')
-        """).fetchone()[0]
+    high_assessments = conn.execute("""
+        SELECT COUNT(*)
+        FROM assessments
+        WHERE risk_level IN ('HIGH','CRITICAL')
+    """).fetchone()[0]
 
 
-    open_incidents =
-        conn.execute("""
-            SELECT COUNT(*)
-            FROM incidents
-            WHERE status='OPEN'
-        """).fetchone()[0]
+    open_incidents = conn.execute("""
+        SELECT COUNT(*)
+        FROM incidents
+        WHERE status='OPEN'
+    """).fetchone()[0]
 
 
-    critical_incidents =
-        conn.execute("""
-            SELECT COUNT(*)
-            FROM incidents
-            WHERE severity='CRITICAL'
-        """).fetchone()[0]
+    critical_incidents = conn.execute("""
+        SELECT COUNT(*)
+        FROM incidents
+        WHERE severity='CRITICAL'
+    """).fetchone()[0]
 
 
     conn.close()
@@ -1910,42 +1858,36 @@ def stats():
 )
 def export_excel():
 
-    conn =
-        get_db()
+    conn = get_db()
 
 
-    assessments =
-        conn.execute("""
-            SELECT *
-            FROM assessments
-            ORDER BY id DESC
-        """).fetchall()
+    assessments = conn.execute("""
+        SELECT *
+        FROM assessments
+        ORDER BY id DESC
+    """).fetchall()
 
 
-    incidents =
-        conn.execute("""
-            SELECT *
-            FROM incidents
-            ORDER BY id DESC
-        """).fetchall()
+    incidents = conn.execute("""
+        SELECT *
+        FROM incidents
+        ORDER BY id DESC
+    """).fetchall()
 
 
     conn.close()
 
 
-    wb =
-        Workbook()
+    wb = Workbook()
 
 
     # ------------------------------------------------------
     # Risk Assessments
     # ------------------------------------------------------
 
-    ws =
-        wb.active
+    ws = wb.active
 
-    ws.title =
-        "Risk Assessments"
+    ws.title = "Risk Assessments"
 
 
     headers = [
@@ -1969,19 +1911,16 @@ def export_excel():
         start=1
     ):
 
-        cell =
-            ws.cell(
-                row=1,
-                column=col
-            )
+        cell = ws.cell(
+            row=1,
+            column=col
+        )
 
-        cell.value =
-            header
+        cell.value = header
 
-        cell.font =
-            Font(
-                bold=True
-            )
+        cell.font = Font(
+            bold=True
+        )
 
 
     for item in assessments:
@@ -2028,10 +1967,9 @@ def export_excel():
     # Incidents
     # ------------------------------------------------------
 
-    ws2 =
-        wb.create_sheet(
-            "Incidents"
-        )
+    ws2 = wb.create_sheet(
+        "Incidents"
+    )
 
 
     headers2 = [
@@ -2053,19 +1991,16 @@ def export_excel():
         start=1
     ):
 
-        cell =
-            ws2.cell(
-                row=1,
-                column=col
-            )
+        cell = ws2.cell(
+            row=1,
+            column=col
+        )
 
-        cell.value =
-            header
+        cell.value = header
 
-        cell.font =
-            Font(
-                bold=True
-            )
+        cell.font = Font(
+            bold=True
+        )
 
 
     for item in incidents:
@@ -2151,13 +2086,12 @@ def root():
 
 if __name__ == "__main__":
 
-    port =
-        int(
-            os.environ.get(
-                "PORT",
-                5000
-            )
+    port = int(
+        os.environ.get(
+            "PORT",
+            5000
         )
+    )
 
 
     app.run(
