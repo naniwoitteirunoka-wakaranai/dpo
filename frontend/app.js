@@ -14,6 +14,7 @@ function showTab(tab) {
 }
 
 
+
 // -------------------- Helpers --------------------
 
 function yesNo(id) {
@@ -53,16 +54,22 @@ function clearError() {
 }
 
 
+
 // ==========================================================
-// AI EXTRACTED PARAMETER RESET
+// AI RESULT RESET
 // ==========================================================
 
 function clearAIExtractedParameters() {
 
-    const aiParameters =
-        document.getElementById("aiExtractedParameters");
+    // ======================================================
+    // Clear AI Extracted Parameter Cards
+    // ======================================================
 
-    // Hide the entire AI result section
+    const aiParameters =
+        document.getElementById(
+            "aiExtractedParameters"
+        );
+
     if (aiParameters) {
         aiParameters.classList.add("hidden");
     }
@@ -76,7 +83,6 @@ function clearAIExtractedParameters() {
         "ai_retention",
         "ai_consent"
     ];
-
 
     cardIds.forEach(id => {
 
@@ -102,7 +108,6 @@ function clearAIExtractedParameters() {
             "ai_affected_users"
         );
 
-
     if (affectedUsers) {
 
         affectedUsers.textContent = "0";
@@ -113,7 +118,27 @@ function clearAIExtractedParameters() {
             "number"
         );
     }
+
+
+    // ======================================================
+    // CLEAR AI RISK ASSESSMENT RESULT
+    // ======================================================
+
+    const riskResult =
+        document.getElementById(
+            "riskResult"
+        );
+
+    if (riskResult) {
+
+        riskResult.classList.add(
+            "hidden"
+        );
+
+        riskResult.innerHTML = "";
+    }
 }
+
 
 
 // ==========================================================
@@ -123,13 +148,11 @@ function clearAIExtractedParameters() {
 function showRiskInputMode(mode) {
 
     // ------------------------------------------------------
-    // Clear any previous AI extraction whenever we leave
-    // or re-enter the AI upload/type area.
+    // Clear previous AI extraction AND risk result whenever
+    // switching between Manual and AI modes.
     // ------------------------------------------------------
 
-    if (mode === "manual") {
-        clearAIExtractedParameters();
-    }
+    clearAIExtractedParameters();
 
 
     const manualMode =
@@ -194,6 +217,7 @@ function showRiskInputMode(mode) {
 }
 
 
+
 // ==========================================================
 // UPLOAD / TYPE INPUT TABS
 // ==========================================================
@@ -201,9 +225,8 @@ function showRiskInputMode(mode) {
 function showDocumentInputMode(mode) {
 
     // ------------------------------------------------------
-    // IMPORTANT:
-    // Whenever the user switches between Upload and Type,
-    // clear the previous AI extraction.
+    // Clear previous AI extraction AND risk result whenever
+    // switching between Upload and Type.
     // ------------------------------------------------------
 
     clearAIExtractedParameters();
@@ -269,6 +292,7 @@ function showDocumentInputMode(mode) {
         );
     }
 }
+
 
 
 // ==========================================================
@@ -428,6 +452,7 @@ const REAL_CASES = [
 ];
 
 
+
 // ==========================================================
 // LOAD REAL-WORLD EXAMPLE
 // ==========================================================
@@ -490,7 +515,7 @@ function loadExample(type) {
             data.affected_users;
 
 
-        // Clear stale AI cards
+        // Clear stale AI cards + result
         clearAIExtractedParameters();
     }
 
@@ -537,6 +562,7 @@ function loadExample(type) {
 }
 
 
+
 // ==========================================================
 // AI RISK ASSESSMENT
 // ==========================================================
@@ -570,6 +596,7 @@ function loadExample(type) {
 // Risk result
 //
 // ==========================================================
+
 
 
 // -------------------- AI Value Card Helper --------------------
@@ -639,6 +666,7 @@ function setAIValueCard(
             : "no"
     );
 }
+
 
 
 // -------------------- Populate AI Result --------------------
@@ -802,6 +830,7 @@ function populateAIResult(data) {
 }
 
 
+
 // ==========================================================
 // SEND DOCUMENT TO AI
 // ==========================================================
@@ -934,6 +963,7 @@ async function analyzeDocument(file) {
 }
 
 
+
 // ==========================================================
 // UPLOAD PDF / TXT
 // ==========================================================
@@ -952,6 +982,7 @@ async function analyzeUploadedDocument() {
 
     await analyzeDocument(file);
 }
+
 
 
 // ==========================================================
@@ -1016,6 +1047,7 @@ async function analyzeTypedDescription() {
 
     await analyzeDocument(file);
 }
+
 
 
 // ==========================================================
@@ -1204,6 +1236,7 @@ async function submitAssessment() {
     button.innerText =
         "Calculate Risk";
 }
+
 
 
 // ==========================================================
@@ -1408,6 +1441,7 @@ async function submitIncident() {
 }
 
 
+
 // ==========================================================
 // ASSESSMENT HISTORY
 // ==========================================================
@@ -1472,6 +1506,7 @@ async function loadAssessments() {
             "<tr><td colspan='5'>Unable to load assessments.</td></tr>";
     }
 }
+
 
 
 // ==========================================================
@@ -1540,6 +1575,7 @@ async function loadIncidents() {
 }
 
 
+
 // ==========================================================
 // DASHBOARD STATS
 // ==========================================================
@@ -1581,6 +1617,7 @@ async function loadStats() {
         );
     }
 }
+
 
 
 // ==========================================================
