@@ -121,7 +121,7 @@ function clearAIExtractedParameters() {
 
 
     // ======================================================
-    // CLEAR AI RISK ASSESSMENT RESULT
+    // Clear AI Risk Assessment Result
     // ======================================================
 
     const riskResult =
@@ -148,7 +148,7 @@ function clearAIExtractedParameters() {
 function showRiskInputMode(mode) {
 
     // ------------------------------------------------------
-    // Clear previous AI extraction AND risk result whenever
+    // Clear previous AI extraction + risk result whenever
     // switching between Manual and AI modes.
     // ------------------------------------------------------
 
@@ -176,6 +176,29 @@ function showRiskInputMode(mode) {
         );
 
 
+    // ======================================================
+    // LOAD EXAMPLE BUTTON
+    // ======================================================
+
+    const loadExampleButton =
+        document.querySelector(
+            'button[onclick="loadExample(\'assessment\')"]'
+        );
+
+    if (loadExampleButton) {
+
+        if (mode === "manual") {
+            loadExampleButton.classList.remove("hidden");
+        } else {
+            loadExampleButton.classList.add("hidden");
+        }
+    }
+
+
+    // ======================================================
+    // MANUAL MODE
+    // ======================================================
+
     if (mode === "manual") {
 
         manualMode.classList.add(
@@ -195,6 +218,10 @@ function showRiskInputMode(mode) {
         );
     }
 
+
+    // ======================================================
+    // AI MODE
+    // ======================================================
 
     if (mode === "upload") {
 
@@ -225,7 +252,7 @@ function showRiskInputMode(mode) {
 function showDocumentInputMode(mode) {
 
     // ------------------------------------------------------
-    // Clear previous AI extraction AND risk result whenever
+    // Clear previous AI extraction + risk result whenever
     // switching between Upload and Type.
     // ------------------------------------------------------
 
