@@ -147,11 +147,7 @@ function clearAIExtractedParameters() {
 
 function showRiskInputMode(mode) {
 
-    // ------------------------------------------------------
-    // Clear previous AI extraction + risk result whenever
-    // switching between Manual and AI modes.
-    // ------------------------------------------------------
-
+    // Clear previous AI extraction + risk result
     clearAIExtractedParameters();
 
 
@@ -175,24 +171,10 @@ function showRiskInputMode(mode) {
             "uploadRiskTab"
         );
 
-
-    // ======================================================
-    // LOAD EXAMPLE BUTTON
-    // ======================================================
-
     const loadExampleButton =
-        document.querySelector(
-            'button[onclick="loadExample(\'assessment\')"]'
+        document.getElementById(
+            "assessmentLoadExampleButton"
         );
-
-    if (loadExampleButton) {
-
-        if (mode === "manual") {
-            loadExampleButton.classList.remove("hidden");
-        } else {
-            loadExampleButton.classList.add("hidden");
-        }
-    }
 
 
     // ======================================================
@@ -216,6 +198,15 @@ function showRiskInputMode(mode) {
         uploadTab.classList.remove(
             "active"
         );
+
+
+        // Show Load Example only in Manual mode
+        if (loadExampleButton) {
+
+            loadExampleButton.classList.remove(
+                "hidden"
+            );
+        }
     }
 
 
@@ -240,9 +231,17 @@ function showRiskInputMode(mode) {
         uploadTab.classList.add(
             "active"
         );
+
+
+        // Hide Load Example in AI mode
+        if (loadExampleButton) {
+
+            loadExampleButton.classList.add(
+                "hidden"
+            );
+        }
     }
 }
-
 
 
 // ==========================================================
