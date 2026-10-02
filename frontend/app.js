@@ -17,10 +17,6 @@ function showTab(tab) {
     if (tab === "assessmentHistory") {
         loadAssessments();
     }
-
-    if (tab === "incidentHistory") {
-        loadIncidents();
-    }
 }
 
 
@@ -83,13 +79,8 @@ function clearError() {
 
 
 // ==========================================================
-// RESULT / AI RESET HELPERS
+// RISK AI RESET
 // ==========================================================
-
-
-// ----------------------------------------------------------
-// Clear Risk Assessment AI state
-// ----------------------------------------------------------
 
 function clearRiskAIState() {
 
@@ -159,7 +150,6 @@ function clearRiskAIState() {
     }
 
 
-    // Clear Risk Result
     const riskResult =
         document.getElementById(
             "riskResult"
@@ -177,116 +167,12 @@ function clearRiskAIState() {
 }
 
 
-// ----------------------------------------------------------
-// Clear Incident AI state
-// ----------------------------------------------------------
-
-function clearIncidentAIState() {
-
-    const aiParameters =
-        document.getElementById(
-            "incidentAIExtractedParameters"
-        );
-
-
-    if (aiParameters) {
-
-        aiParameters.classList.add(
-            "hidden"
-        );
-    }
-
-
-    const cardIds = [
-
-        "ai_incident_type",
-        "ai_incident_description",
-        "ai_data_exposed",
-        "ai_incident_sensitive",
-        "ai_incident_external",
-        "ai_incident_users"
-
-    ];
-
-
-    cardIds.forEach(id => {
-
-        const card =
-            document.getElementById(id);
-
-
-        if (!card) {
-            return;
-        }
-
-
-        card.textContent = "-";
-
-
-        card.classList.remove(
-            "yes",
-            "no",
-            "number"
-        );
-    });
-
-
-    const affectedUsers =
-        document.getElementById(
-            "ai_incident_users"
-        );
-
-
-    if (affectedUsers) {
-
-        affectedUsers.textContent = "0";
-
-
-        affectedUsers.classList.remove(
-            "yes",
-            "no",
-            "number"
-        );
-    }
-
-
-    // Clear Incident Result
-    const incidentResult =
-        document.getElementById(
-            "incidentResult"
-        );
-
-
-    if (incidentResult) {
-
-        incidentResult.classList.add(
-            "hidden"
-        );
-
-        incidentResult.innerHTML = "";
-    }
-}
-
-
-// ----------------------------------------------------------
-// Clear BOTH sections when necessary
-// ----------------------------------------------------------
-
-function clearAllAssessmentResults() {
-
-    clearRiskAIState();
-
-    clearIncidentAIState();
-}
-
-
 // ==========================================================
 // RISK ASSESSMENT INPUT TABS
 // ==========================================================
 
 function showRiskInputMode(mode) {
 
-    // Clear previous AI cards + result
     clearRiskAIState();
 
 
@@ -346,7 +232,6 @@ function showRiskInputMode(mode) {
         );
 
 
-        // Show Load Example
         if (loadExampleButton) {
 
             loadExampleButton.classList.remove(
@@ -382,7 +267,6 @@ function showRiskInputMode(mode) {
         );
 
 
-        // Hide Load Example
         if (loadExampleButton) {
 
             loadExampleButton.classList.add(
@@ -399,7 +283,6 @@ function showRiskInputMode(mode) {
 
 function showDocumentInputMode(mode) {
 
-    // Clear old AI extraction + result
     clearRiskAIState();
 
 
@@ -475,201 +358,7 @@ function showDocumentInputMode(mode) {
 
 
 // ==========================================================
-// INCIDENT MANAGEMENT INPUT TABS
-// ==========================================================
-
-function showIncidentInputMode(mode) {
-
-    // Clear old AI cards + incident result
-    clearIncidentAIState();
-
-
-    const manualMode =
-        document.getElementById(
-            "manualIncidentMode"
-        );
-
-
-    const uploadMode =
-        document.getElementById(
-            "uploadIncidentMode"
-        );
-
-
-    const manualTab =
-        document.getElementById(
-            "manualIncidentTab"
-        );
-
-
-    const uploadTab =
-        document.getElementById(
-            "uploadIncidentTab"
-        );
-
-
-    const loadExampleButton =
-        document.getElementById(
-            "incidentLoadExampleButton"
-        );
-
-
-    // ======================================================
-    // MANUAL MODE
-    // ======================================================
-
-    if (mode === "manual") {
-
-        manualMode.classList.add(
-            "active"
-        );
-
-
-        uploadMode.classList.remove(
-            "active"
-        );
-
-
-        manualTab.classList.add(
-            "active"
-        );
-
-
-        uploadTab.classList.remove(
-            "active"
-        );
-
-
-        // Show Load Example
-        if (loadExampleButton) {
-
-            loadExampleButton.classList.remove(
-                "hidden"
-            );
-        }
-    }
-
-
-    // ======================================================
-    // AI MODE
-    // ======================================================
-
-    if (mode === "upload") {
-
-        manualMode.classList.remove(
-            "active"
-        );
-
-
-        uploadMode.classList.add(
-            "active"
-        );
-
-
-        manualTab.classList.remove(
-            "active"
-        );
-
-
-        uploadTab.classList.add(
-            "active"
-        );
-
-
-        // Hide Load Example
-        if (loadExampleButton) {
-
-            loadExampleButton.classList.add(
-                "hidden"
-            );
-        }
-    }
-}
-
-
-// ==========================================================
-// INCIDENT: UPLOAD / TYPE INPUT TABS
-// ==========================================================
-
-function showIncidentDocumentInputMode(mode) {
-
-    // Clear old AI extraction + result
-    clearIncidentAIState();
-
-
-    const uploadMode =
-        document.getElementById(
-            "incidentUploadDocumentMode"
-        );
-
-
-    const typeMode =
-        document.getElementById(
-            "incidentTypeDocumentMode"
-        );
-
-
-    const uploadTab =
-        document.getElementById(
-            "incidentUploadDocumentTab"
-        );
-
-
-    const typeTab =
-        document.getElementById(
-            "incidentTypeDocumentTab"
-        );
-
-
-    if (mode === "upload") {
-
-        uploadMode.classList.add(
-            "active"
-        );
-
-
-        typeMode.classList.remove(
-            "active"
-        );
-
-
-        uploadTab.classList.add(
-            "active"
-        );
-
-
-        typeTab.classList.remove(
-            "active"
-        );
-    }
-
-
-    if (mode === "type") {
-
-        uploadMode.classList.remove(
-            "active"
-        );
-
-
-        typeMode.classList.add(
-            "active"
-        );
-
-
-        uploadTab.classList.remove(
-            "active"
-        );
-
-
-        typeTab.classList.add(
-            "active"
-        );
-    }
-}
-
-
-// ==========================================================
-// REAL-WORLD EXAMPLES
+// REAL-WORLD RISK ASSESSMENT EXAMPLES
 // ==========================================================
 
 const REAL_CASES = [
@@ -681,7 +370,6 @@ const REAL_CASES = [
     {
         name:
             "OpenAI ChatGPT Data Exposure (2023)",
-
 
         assessment: {
 
@@ -708,28 +396,6 @@ const REAL_CASES = [
 
             affected_users:
                 1
-        },
-
-
-        incident: {
-
-            incident_type:
-                "Cross-User GenAI Data Exposure",
-
-            incident_description:
-                "A software bug in ChatGPT caused some users to see another user's chat history titles and potentially limited personal and payment-related information.",
-
-            data_exposed:
-                "Chat titles, names, email addresses, payment addresses and limited payment card information.",
-
-            incident_sensitive:
-                "true",
-
-            incident_external:
-                "true",
-
-            incident_users:
-                1
         }
     },
 
@@ -741,7 +407,6 @@ const REAL_CASES = [
     {
         name:
             "Australian Child Protection Worker Using ChatGPT (2024)",
-
 
         assessment: {
 
@@ -768,28 +433,6 @@ const REAL_CASES = [
 
             affected_users:
                 1
-        },
-
-
-        incident: {
-
-            incident_type:
-                "Unauthorized Sensitive Data Upload",
-
-            incident_description:
-                "A Child Protection worker used ChatGPT while drafting a report containing sensitive information relating to a child protection case.",
-
-            data_exposed:
-                "Sensitive personal information contained in a child protection report.",
-
-            incident_sensitive:
-                "true",
-
-            incident_external:
-                "true",
-
-            incident_users:
-                1
         }
     },
 
@@ -801,7 +444,6 @@ const REAL_CASES = [
     {
         name:
             "DeepSeek Privacy Investigation (2025)",
-
 
         assessment: {
 
@@ -828,28 +470,6 @@ const REAL_CASES = [
 
             affected_users:
                 1000
-        },
-
-
-        incident: {
-
-            incident_type:
-                "GenAI Data Processing Violation",
-
-            incident_description:
-                "The Italian Data Protection Authority ordered an immediate limitation on DeepSeek's processing of Italian users' data and opened an investigation into the chatbot's data processing practices.",
-
-            data_exposed:
-                "Personal data of users processed through the DeepSeek chatbot.",
-
-            incident_sensitive:
-                "true",
-
-            incident_external:
-                "true",
-
-            incident_users:
-                1000
         }
     },
 
@@ -861,7 +481,6 @@ const REAL_CASES = [
     {
         name:
             "OpenAI and Hugging Face Security Incident (2026)",
-
 
         assessment: {
 
@@ -888,28 +507,6 @@ const REAL_CASES = [
 
             affected_users:
                 0
-        },
-
-
-        incident: {
-
-            incident_type:
-                "AI-Driven Infrastructure Breach",
-
-            incident_description:
-                "During cybersecurity evaluations, OpenAI models bypassed isolation controls, gained internet access and accessed third-party systems including Hugging Face infrastructure.",
-
-            data_exposed:
-                "Internal research infrastructure, datasets and service credentials were potentially accessed. The scope of affected partner or customer data was still being assessed.",
-
-            incident_sensitive:
-                "true",
-
-            incident_external:
-                "true",
-
-            incident_users:
-                0
         }
     }
 ];
@@ -919,7 +516,7 @@ const REAL_CASES = [
 // LOAD REAL-WORLD EXAMPLE
 // ==========================================================
 
-function loadExample(type) {
+function loadExample() {
 
     if (
         typeof window.exampleIndex ===
@@ -944,92 +541,45 @@ function loadExample(type) {
         ];
 
 
-    // ======================================================
-    // RISK ASSESSMENT EXAMPLE
-    // ======================================================
-
-    if (type === "assessment") {
-
-        const data =
-            example.assessment;
+    const data =
+        example.assessment;
 
 
-        use_case.value =
-            data.use_case;
+    use_case.value =
+        data.use_case;
 
 
-        description.value =
-            data.description;
+    description.value =
+        data.description;
 
 
-        personal_data.value =
-            data.personal_data;
+    personal_data.value =
+        data.personal_data;
 
 
-        sensitive_data.value =
-            data.sensitive_data;
+    sensitive_data.value =
+        data.sensitive_data;
 
 
-        external_ai.value =
-            data.external_ai;
+    external_ai.value =
+        data.external_ai;
 
 
-        retention.value =
-            data.retention;
+    retention.value =
+        data.retention;
 
 
-        consent.value =
-            data.consent;
+    consent.value =
+        data.consent;
 
 
-        affected_users.value =
-            data.affected_users;
+    affected_users.value =
+        data.affected_users;
 
 
-        clearRiskAIState();
+    clearRiskAIState();
 
-        clearError();
-    }
-
-
-    // ======================================================
-    // INCIDENT EXAMPLE
-    // ======================================================
-
-    if (type === "incident") {
-
-        const data =
-            example.incident;
-
-
-        incident_type.value =
-            data.incident_type;
-
-
-        incident_description.value =
-            data.incident_description;
-
-
-        data_exposed.value =
-            data.data_exposed;
-
-
-        incident_sensitive.value =
-            data.incident_sensitive;
-
-
-        incident_external.value =
-            data.incident_external;
-
-
-        incident_users.value =
-            data.incident_users;
-
-
-        clearIncidentAIState();
-
-        clearError();
-    }
+    clearError();
 
 
     console.log(
@@ -1446,7 +996,7 @@ async function analyzeTypedDescription() {
     if (!text) {
 
         showError(
-            "Please enter an incident description."
+            "Please enter a description."
         );
 
         textarea.focus();
@@ -1458,7 +1008,7 @@ async function analyzeTypedDescription() {
     if (text.length > 1000000) {
 
         showError(
-            "Incident description cannot exceed 1,000,000 characters."
+            "Description cannot exceed 1,000,000 characters."
         );
 
         textarea.focus();
@@ -1470,7 +1020,7 @@ async function analyzeTypedDescription() {
     const file =
         new File(
             [text],
-            "typed_incident_description.txt",
+            "typed_risk_description.txt",
             {
                 type: "text/plain"
             }
@@ -1485,7 +1035,7 @@ async function analyzeTypedDescription() {
 // RISK ASSESSMENT
 // ==========================================================
 
-async function submitAssessment() {
+async function submitAssessment(event) {
 
     clearError();
 
@@ -1541,7 +1091,12 @@ async function submitAssessment() {
 
 
     const button =
-        event.target;
+        event?.target;
+
+
+    if (!button) {
+        return;
+    }
 
 
     button.disabled = true;
@@ -1601,10 +1156,11 @@ async function submitAssessment() {
             await response.json();
 
 
-        if (!data.success) {
+        if (!response.ok || !data.success) {
 
             throw new Error(
-                data.error
+                data.error ||
+                "Unable to calculate risk."
             );
         }
 
@@ -1677,609 +1233,6 @@ async function submitAssessment() {
 
 
 // ==========================================================
-// POPULATE INCIDENT AI RESULT
-// ==========================================================
-
-function populateIncidentAIResult(data) {
-
-    const extracted =
-        data.extracted_data;
-
-
-    // ======================================================
-    // Fill Existing Incident Form
-    // ======================================================
-
-    incident_type.value =
-        extracted.incident_type || "";
-
-
-    incident_description.value =
-        extracted.description || "";
-
-
-    data_exposed.value =
-        extracted.data_exposed || "";
-
-
-    incident_sensitive.value =
-        String(
-            extracted.sensitive_data
-        );
-
-
-    incident_external.value =
-        String(
-            extracted.external_ai
-        );
-
-
-    incident_users.value =
-        extracted.affected_users ?? 0;
-
-
-    // ======================================================
-    // Populate AI Extracted Cards
-    // ======================================================
-
-    const incidentTypeCard =
-        document.getElementById(
-            "ai_incident_type"
-        );
-
-
-    if (incidentTypeCard) {
-
-        incidentTypeCard.textContent =
-            extracted.incident_type || "-";
-
-        incidentTypeCard.classList.remove(
-            "yes",
-            "no",
-            "number"
-        );
-    }
-
-
-    const incidentDescriptionCard =
-        document.getElementById(
-            "ai_incident_description"
-        );
-
-
-    if (incidentDescriptionCard) {
-
-        incidentDescriptionCard.textContent =
-            extracted.description || "-";
-
-        incidentDescriptionCard.classList.remove(
-            "yes",
-            "no",
-            "number"
-        );
-    }
-
-
-    const dataExposedCard =
-        document.getElementById(
-            "ai_data_exposed"
-        );
-
-
-    if (dataExposedCard) {
-
-        dataExposedCard.textContent =
-            extracted.data_exposed || "-";
-
-        dataExposedCard.classList.remove(
-            "yes",
-            "no",
-            "number"
-        );
-    }
-
-
-    setAIValueCard(
-        "ai_incident_sensitive",
-        extracted.sensitive_data
-    );
-
-
-    setAIValueCard(
-        "ai_incident_external",
-        extracted.external_ai
-    );
-
-
-    setAIValueCard(
-        "ai_incident_users",
-        extracted.affected_users ?? 0,
-        true
-    );
-
-
-    // ======================================================
-    // SHOW AI EXTRACTED PARAMETERS
-    // ======================================================
-
-    const aiParameters =
-        document.getElementById(
-            "incidentAIExtractedParameters"
-        );
-
-
-    if (aiParameters) {
-
-        aiParameters.classList.remove(
-            "hidden"
-        );
-    }
-
-
-    // ======================================================
-    // SHOW INCIDENT RESULT
-    // ======================================================
-
-    const incidentResult =
-        document.getElementById(
-            "incidentResult"
-        );
-
-
-    if (incidentResult) {
-
-        incidentResult.classList.remove(
-            "hidden"
-        );
-
-
-        incidentResult.innerHTML = `
-
-            <h2>
-                AI Incident Severity Result
-            </h2>
-
-            ${badge(data.severity)}
-
-            <h3>
-                Incident Score =
-                ${data.incident_score}
-            </h3>
-
-            <h4>
-                Recommended Response Actions
-            </h4>
-
-            <ul>
-
-                ${data.actions
-                    .map(
-                        item =>
-                            `<li>${item}</li>`
-                    )
-                    .join("")}
-
-            </ul>
-
-        `;
-    }
-
-
-    loadStats();
-
-    loadIncidents();
-}
-
-
-// ==========================================================
-// INCIDENT AI DOCUMENT ANALYSIS
-// ==========================================================
-
-async function analyzeIncidentDocument(file) {
-
-    clearError();
-
-
-    if (!file) {
-
-        showError(
-            "Please select a PDF or TXT file."
-        );
-
-        return;
-    }
-
-
-    const fileName =
-        file.name.toLowerCase();
-
-
-    const isPdf =
-        file.type === "application/pdf" ||
-        fileName.endsWith(".pdf");
-
-
-    const isTxt =
-        file.type === "text/plain" ||
-        fileName.endsWith(".txt");
-
-
-    if (!isPdf && !isTxt) {
-
-        showError(
-            "Only PDF and TXT files are supported."
-        );
-
-        return;
-    }
-
-
-    const formData =
-        new FormData();
-
-
-    formData.append(
-        "file",
-        file
-    );
-
-
-    const button =
-        document.querySelector(
-            "#incidentUploadDocumentMode button"
-        );
-
-
-    try {
-
-        if (button) {
-
-            button.disabled = true;
-
-            button.innerText =
-                "Analyzing with AI...";
-        }
-
-
-        const response =
-            await fetch(
-                `${API}/incident-ai`,
-                {
-                    method: "POST",
-                    body: formData
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (
-            !response.ok ||
-            !data.success
-        ) {
-
-            throw new Error(
-                data.error ||
-                "Unable to analyze incident document."
-            );
-        }
-
-
-        clearError();
-
-        populateIncidentAIResult(data);
-
-
-    } catch (error) {
-
-        showError(
-            error.message ||
-            "Unable to analyze incident document."
-        );
-
-
-    } finally {
-
-        if (button) {
-
-            button.disabled = false;
-
-            button.innerText =
-                "Analyze with AI";
-        }
-    }
-}
-
-
-// ==========================================================
-// INCIDENT AI: UPLOAD PDF / TXT
-// ==========================================================
-
-async function analyzeUploadedIncidentDocument() {
-
-    const fileInput =
-        document.getElementById(
-            "incident_ai_document"
-        );
-
-
-    const file =
-        fileInput?.files?.[0];
-
-
-    await analyzeIncidentDocument(file);
-}
-
-
-// ==========================================================
-// INCIDENT AI: TYPE DESCRIPTION
-// ==========================================================
-
-async function analyzeTypedIncidentDescription() {
-
-    clearError();
-
-
-    const textarea =
-        document.getElementById(
-            "typed_incident_ai_description"
-        );
-
-
-    const text =
-        textarea.value.trim();
-
-
-    if (!text) {
-
-        showError(
-            "Please enter an incident description."
-        );
-
-        textarea.focus();
-
-        return;
-    }
-
-
-    if (text.length > 1000000) {
-
-        showError(
-            "Incident description cannot exceed 1,000,000 characters."
-        );
-
-        textarea.focus();
-
-        return;
-    }
-
-
-    const file =
-        new File(
-            [text],
-            "typed_incident_description.txt",
-            {
-                type: "text/plain"
-            }
-        );
-
-
-    await analyzeIncidentDocument(file);
-}
-
-
-// ==========================================================
-// INCIDENT MANAGEMENT
-// ==========================================================
-
-async function submitIncident() {
-
-    clearError();
-
-
-    const type =
-        incident_type.value.trim();
-
-
-    const desc =
-        incident_description.value.trim();
-
-
-    const exposed =
-        data_exposed.value.trim();
-
-
-    const users =
-        Number(
-            incident_users.value || 0
-        );
-
-
-    if (!type) {
-
-        showError(
-            "Please enter an Incident Type."
-        );
-
-        incident_type.focus();
-
-        return;
-    }
-
-
-    if (!desc) {
-
-        showError(
-            "Please enter an Incident Description."
-        );
-
-        incident_description.focus();
-
-        return;
-    }
-
-
-    if (!exposed) {
-
-        showError(
-            "Please enter the Data Exposed."
-        );
-
-        data_exposed.focus();
-
-        return;
-    }
-
-
-    if (users < 0) {
-
-        showError(
-            "Affected Users cannot be negative."
-        );
-
-        incident_users.focus();
-
-        return;
-    }
-
-
-    const button =
-        event.target;
-
-
-    button.disabled = true;
-
-    button.innerText =
-        "Assessing...";
-
-
-    const payload = {
-
-        incident_type:
-            type,
-
-        description:
-            desc,
-
-        data_exposed:
-            exposed,
-
-        sensitive_data:
-            yesNo(
-                "incident_sensitive"
-            ),
-
-        external_ai:
-            yesNo(
-                "incident_external"
-            ),
-
-        affected_users:
-            users
-    };
-
-
-    try {
-
-        const response =
-            await fetch(
-                `${API}/incidents`,
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body:
-                        JSON.stringify(payload)
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (!data.success) {
-
-            throw new Error(
-                data.error
-            );
-        }
-
-
-        clearError();
-
-
-        const incidentResult =
-            document.getElementById(
-                "incidentResult"
-            );
-
-
-        incidentResult.classList.remove(
-            "hidden"
-        );
-
-
-        incidentResult.innerHTML = `
-
-            <h2>
-                Incident Severity Result
-            </h2>
-
-            ${badge(data.severity)}
-
-            <h3>
-                Incident Score =
-                ${data.incident_score}
-            </h3>
-
-            <h4>
-                Recommended Response Actions
-            </h4>
-
-            <ul>
-
-                ${data.actions
-                    .map(
-                        item =>
-                            `<li>${item}</li>`
-                    )
-                    .join("")}
-
-            </ul>
-
-        `;
-
-
-        loadStats();
-
-        loadIncidents();
-
-
-    } catch (error) {
-
-        showError(
-            error.message ||
-            "Unable to assess incident."
-        );
-
-    } finally {
-
-        button.disabled = false;
-
-        button.innerText =
-            "Assess Incident";
-    }
-}
-
-
-// ==========================================================
 // ASSESSMENT HISTORY
 // ==========================================================
 
@@ -2346,72 +1299,6 @@ async function loadAssessments() {
 
 
 // ==========================================================
-// INCIDENT HISTORY
-// ==========================================================
-
-async function loadIncidents() {
-
-    try {
-
-        const response =
-            await fetch(
-                `${API}/incidents`
-            );
-
-
-        const data =
-            await response.json();
-
-
-        incidentTable.innerHTML =
-            "";
-
-
-        data.data.forEach(
-            item => {
-
-                incidentTable.innerHTML += `
-
-                    <tr>
-
-                        <td>
-                            ${item.id}
-                        </td>
-
-                        <td>
-                            ${item.incident_type}
-                        </td>
-
-                        <td>
-                            ${badge(
-                                item.severity
-                            )}
-                        </td>
-
-                        <td>
-                            ${item.status}
-                        </td>
-
-                        <td>
-                            ${item.created_at}
-                        </td>
-
-                    </tr>
-
-                `;
-            }
-        );
-
-
-    } catch {
-
-        incidentTable.innerHTML =
-            "<tr><td colspan='5'>Unable to load incidents.</td></tr>";
-    }
-}
-
-
-// ==========================================================
 // DASHBOARD STATS
 // ==========================================================
 
@@ -2437,14 +1324,6 @@ async function loadStats() {
             data.high_critical_assessments;
 
 
-        openIncidents.innerText =
-            data.open_incidents;
-
-
-        criticalIncidents.innerText =
-            data.critical_incidents;
-
-
     } catch {
 
         console.log(
@@ -2461,5 +1340,3 @@ async function loadStats() {
 loadStats();
 
 loadAssessments();
-
-loadIncidents();
