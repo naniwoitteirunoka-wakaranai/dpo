@@ -276,3 +276,62 @@ footer{
         justify-content:flex-start;
     }
 }
+
+/* ==========================================================
+   RISK ASSESSMENT INPUT TABS
+   ========================================================== */
+
+.input-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.input-tab {
+  padding: 14px 22px;
+  border: 1px solid #31506f;
+  border-radius: 10px;
+  background: #182235;
+  color: #9bb3d1;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.input-tab:hover {
+  background: #202d43;
+  color: #ffffff;
+}
+
+.input-tab.active {
+  background: #159ddd;
+  border-color: #159ddd;
+  color: #ffffff;
+}
+
+
+/* ==========================================================
+   RISK INPUT MODES
+   ========================================================== */
+
+.risk-input-mode {
+  display: none;
+}
+
+.risk-input-mode.active {
+  display: block;
+}
+
+
+/* ==========================================================
+   DOCUMENT INPUT TABS
+   ========================================================== */
+
+.document-input-mode {
+  display: none;
+}
+
+.document-input-mode.active {
+  display: block;
+}
