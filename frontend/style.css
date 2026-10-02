@@ -54,12 +54,15 @@ header p {
 
 .stats {
     display: grid;
-    grid-template-columns: repeat(
-        auto-fit,
-        minmax(180px, 1fr)
-    );
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(180px, 1fr)
+        );
 
     gap: 16px;
+
     margin-bottom: 28px;
 }
 
@@ -71,6 +74,7 @@ header p {
     );
 
     border: 1px solid var(--border);
+
     border-radius: 16px;
 
     padding: 18px;
@@ -83,6 +87,7 @@ header p {
 
 .card h3 {
     color: var(--muted);
+
     font-size: 0.9rem;
 }
 
@@ -94,6 +99,7 @@ header p {
     color: var(--primary);
 
     font-size: 30px;
+
     font-weight: bold;
 }
 
@@ -104,6 +110,7 @@ header p {
 
 nav {
     display: flex;
+
     flex-wrap: wrap;
 
     gap: 10px;
@@ -155,6 +162,7 @@ nav button:hover {
     display: flex;
 
     justify-content: space-between;
+
     align-items: center;
 
     margin-bottom: 20px;
@@ -473,7 +481,7 @@ footer {
 
 
 /* ==========================================================
-   RISK ASSESSMENT INPUT TABS
+   MANUAL / AI INPUT TABS
    ========================================================== */
 
 .input-tabs {
@@ -534,7 +542,7 @@ footer {
 
 
 /* ==========================================================
-   RISK INPUT MODES
+   MANUAL / AI INPUT MODES
    ========================================================== */
 
 .risk-input-mode {
@@ -560,7 +568,7 @@ footer {
 
 
 /* ==========================================================
-   DOCUMENT INPUT SECTION
+   RISK AI SECTION
    ========================================================== */
 
 #uploadRiskMode {
@@ -573,10 +581,29 @@ footer {
 
 
 /* ==========================================================
-   FILE UPLOAD
+   INCIDENT AI SECTION
    ========================================================== */
 
-#incident_document {
+#uploadIncidentMode {
+    padding-top: 2px;
+}
+
+#uploadIncidentMode > .input-tabs {
+    margin-bottom: 26px;
+}
+
+
+/* ==========================================================
+   FILE UPLOADS
+   ========================================================== */
+
+/*
+   Both Risk Assessment and Incident Management
+   use the exact same styled file input.
+*/
+
+#incident_document,
+#incident_ai_document {
     width: 100%;
 
     padding: 10px;
@@ -595,14 +622,12 @@ footer {
 }
 
 
-/*
-   Chrome / Edge / modern browsers
+/* ==========================================================
+   FILE SELECTOR BUTTON
+   ========================================================== */
 
-   This replaces the ugly native "Choose File"
-   button while keeping the actual file input.
-*/
-
-#incident_document::file-selector-button {
+#incident_document::file-selector-button,
+#incident_ai_document::file-selector-button {
     background: var(--primary-dark);
 
     color: white;
@@ -628,7 +653,8 @@ footer {
         box-shadow 0.2s ease;
 }
 
-#incident_document::file-selector-button:hover {
+#incident_document::file-selector-button:hover,
+#incident_ai_document::file-selector-button:hover {
     background: var(--primary);
 
     box-shadow:
@@ -642,7 +668,10 @@ footer {
    ========================================================== */
 
 #uploadDocumentMode p,
-#typeDocumentMode p {
+#typeDocumentMode p,
+
+#incidentUploadDocumentMode p,
+#incidentTypeDocumentMode p {
     margin-top: 10px;
 
     color: var(--muted);
@@ -654,12 +683,14 @@ footer {
 
 
 /* ==========================================================
-   DOCUMENT ANALYZE BUTTON
+   AI ANALYZE BUTTONS
    ========================================================== */
 
-#uploadDocumentMode > div button,
-#typeDocumentMode > button,
-#uploadDocumentMode button {
+#uploadDocumentMode button,
+#typeDocumentMode button,
+
+#incidentUploadDocumentMode button,
+#incidentTypeDocumentMode button {
     margin-top: 14px;
 }
 
@@ -718,6 +749,17 @@ footer {
     cursor: default;
 
     user-select: none;
+
+    /*
+       Important for AI-extracted incident descriptions
+       and exposed-data text.
+    */
+
+    white-space: pre-wrap;
+
+    overflow-wrap: anywhere;
+
+    line-height: 1.5;
 }
 
 .ai-value-card.yes {
@@ -730,6 +772,38 @@ footer {
 
 .ai-value-card.number {
     color: var(--text);
+}
+
+
+/* ==========================================================
+   INCIDENT AI EXTRACTED PARAMETERS
+   ========================================================== */
+
+#incidentAIExtractedParameters {
+    margin-top: 30px;
+
+    padding-top: 24px;
+
+    border-top:
+        1px solid var(--border);
+}
+
+#incidentAIExtractedParameters h3 {
+    margin-bottom: 18px;
+
+    color: var(--text);
+
+    font-size: 1.1rem;
+}
+
+
+/* ==========================================================
+   RESULT CARDS
+   ========================================================== */
+
+#riskResult,
+#incidentResult {
+    margin-top: 22px;
 }
 
 
@@ -766,4 +840,9 @@ footer {
     .input-tab {
         flex: 1;
     }
+
+    .grid2 {
+        grid-template-columns: 1fr;
+    }
+
 }
