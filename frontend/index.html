@@ -10,7 +10,7 @@
     content="width=device-width, initial-scale=1.0"
   />
 
-  <title>GENAI DPO PRIVACY FRAMEWORK</title>
+  <title>GenAI DPO Privacy Framework</title>
 
   <link
     rel="stylesheet"
@@ -33,7 +33,7 @@
     </h1>
 
     <p>
-      Generative AI Personal Data Risk & Incident Management
+      Generative AI Personal Data Risk Assessment
     </p>
 
   </header>
@@ -70,32 +70,6 @@
 
     </div>
 
-
-    <div class="card">
-
-      <h3>
-        Open Incidents
-      </h3>
-
-      <span id="openIncidents">
-        0
-      </span>
-
-    </div>
-
-
-    <div class="card">
-
-      <h3>
-        Critical Incidents
-      </h3>
-
-      <span id="criticalIncidents">
-        0
-      </span>
-
-    </div>
-
   </section>
 
 
@@ -113,30 +87,15 @@
 
 
     <button
-      onclick="showTab('incident')"
-    >
-      Incident Management
-    </button>
-
-
-    <button
       onclick="showTab('assessmentHistory')"
     >
       Assessment History
-    </button>
-
-
-    <button
-      onclick="showTab('incidentHistory')"
-    >
-      Incident History
     </button>
 
   </nav>
 
 
   <main>
-
 
     <!-- ==================================================
          RISK ASSESSMENT
@@ -163,7 +122,7 @@
 
           <button
             id="assessmentLoadExampleButton"
-            onclick="loadExample('assessment')"
+            onclick="loadExample()"
           >
             Load Example
           </button>
@@ -191,7 +150,7 @@
             class="input-tab"
             onclick="showRiskInputMode('upload')"
           >
-            Upload Incident Description
+            AI Analysis
           </button>
 
         </div>
@@ -333,7 +292,7 @@
 
 
           <button
-            onclick="submitAssessment()"
+            onclick="submitAssessment(event)"
           >
             Calculate Risk
           </button>
@@ -389,19 +348,19 @@
           >
 
             <label>
-              Incident Description File
+              Risk Description File
             </label>
 
 
             <input
-              id="incident_document"
+              id="risk_document"
               type="file"
               accept=".pdf,.txt,application/pdf,text/plain"
             />
 
 
             <p>
-              Upload a PDF or TXT incident description.
+              Upload a PDF or TXT description.
               The document will be analyzed using AI to
               identify the relevant privacy-risk parameters.
             </p>
@@ -427,14 +386,14 @@
           >
 
             <label>
-              Incident Description
+              Risk Description
             </label>
 
 
             <textarea
-              id="typed_incident_description"
+              id="typed_risk_description"
               maxlength="1000000"
-              placeholder="Type or paste the incident description here..."
+              placeholder="Type or paste the risk description here..."
             ></textarea>
 
 
@@ -578,424 +537,8 @@
         class="result hidden"
       ></div>
 
-    </section>
-
-
-
-    <!-- ==================================================
-         INCIDENT MANAGEMENT
-    =================================================== -->
-
-    <section
-      id="incident"
-      class="tab"
-    >
-
-      <div class="panel">
-
-
-        <!-- ==================================================
-             PANEL TITLE
-        =================================================== -->
-
-        <div class="panel-title">
-
-          <h2>
-            GenAI Privacy Incident Management
-          </h2>
-
-
-          <button
-            id="incidentLoadExampleButton"
-            onclick="loadExample('incident')"
-          >
-            Load Example
-          </button>
-
-        </div>
-
-
-        <!-- ==================================================
-             INCIDENT INPUT TABS
-        =================================================== -->
-
-        <div class="input-tabs">
-
-
-          <button
-            id="manualIncidentTab"
-            class="input-tab active"
-            onclick="showIncidentInputMode('manual')"
-          >
-            Manual Entry
-          </button>
-
-
-          <button
-            id="uploadIncidentTab"
-            class="input-tab"
-            onclick="showIncidentInputMode('upload')"
-          >
-            Upload Incident Description
-          </button>
-
-
-        </div>
-
-
-        <!-- ==================================================
-             MANUAL INCIDENT ENTRY
-        =================================================== -->
-
-        <div
-          id="manualIncidentMode"
-          class="risk-input-mode active"
-        >
-
-
-          <input
-            id="incident_type"
-            placeholder="Incident Type"
-          />
-
-
-          <textarea
-            id="incident_description"
-            placeholder="Incident Description"
-          ></textarea>
-
-
-          <textarea
-            id="data_exposed"
-            placeholder="Data Exposed"
-          ></textarea>
-
-
-          <div class="grid2">
-
-
-            <label>
-
-              Sensitive Data
-
-              <select id="incident_sensitive">
-
-                <option value="true">
-                  YES
-                </option>
-
-                <option value="false">
-                  NO
-                </option>
-
-              </select>
-
-            </label>
-
-
-            <label>
-
-              External AI Involved
-
-              <select id="incident_external">
-
-                <option value="true">
-                  YES
-                </option>
-
-                <option value="false">
-                  NO
-                </option>
-
-              </select>
-
-            </label>
-
-
-            <label>
-
-              Affected Users
-
-              <input
-                id="incident_users"
-                type="number"
-                value="0"
-              />
-
-            </label>
-
-
-          </div>
-
-
-          <button
-            onclick="submitIncident()"
-          >
-            Assess Incident
-          </button>
-
-
-        </div>
-
-
-        <!-- ==================================================
-             AI INCIDENT ASSESSMENT
-        =================================================== -->
-
-        <div
-          id="uploadIncidentMode"
-          class="risk-input-mode"
-        >
-
-
-          <!-- ==================================================
-               INCIDENT UPLOAD / TYPE TABS
-          =================================================== -->
-
-          <div class="input-tabs">
-
-
-            <button
-              id="incidentUploadDocumentTab"
-              class="input-tab active"
-              onclick="showIncidentDocumentInputMode('upload')"
-            >
-              Upload PDF / TXT
-            </button>
-
-
-            <button
-              id="incidentTypeDocumentTab"
-              class="input-tab"
-              onclick="showIncidentDocumentInputMode('type')"
-            >
-              Type Description
-            </button>
-
-
-          </div>
-
-
-          <!-- ==================================================
-               INCIDENT UPLOAD PDF / TXT
-          =================================================== -->
-
-          <div
-            id="incidentUploadDocumentMode"
-            class="document-input-mode active"
-          >
-
-
-            <label>
-              Incident Description File
-            </label>
-
-
-            <input
-              id="incident_ai_document"
-              type="file"
-              accept=".pdf,.txt,application/pdf,text/plain"
-            />
-
-
-            <p>
-              Upload a PDF or TXT incident description.
-              The document will be analyzed using AI to
-              identify the relevant incident parameters.
-            </p>
-
-
-            <button
-              type="button"
-              onclick="analyzeUploadedIncidentDocument()"
-            >
-              Analyze with AI
-            </button>
-
-
-          </div>
-
-
-          <!-- ==================================================
-               INCIDENT TYPE DESCRIPTION
-          =================================================== -->
-
-          <div
-            id="incidentTypeDocumentMode"
-            class="document-input-mode"
-          >
-
-
-            <label>
-              Incident Description
-            </label>
-
-
-            <textarea
-              id="typed_incident_ai_description"
-              maxlength="1000000"
-              placeholder="Type or paste the incident description here..."
-            ></textarea>
-
-
-            <p>
-              Maximum 1,000,000 characters.
-            </p>
-
-
-            <button
-              type="button"
-              onclick="analyzeTypedIncidentDescription()"
-            >
-              Analyze with AI
-            </button>
-
-
-          </div>
-
-
-          <!-- ==================================================
-               AI INCIDENT EXTRACTED PARAMETERS
-          =================================================== -->
-
-          <div
-            id="incidentAIExtractedParameters"
-            class="ai-extracted hidden"
-          >
-
-
-            <h3>
-              AI Extracted Parameters
-            </h3>
-
-
-            <div class="grid2">
-
-
-              <!-- Incident Type -->
-
-              <label>
-
-                Incident Type
-
-                <div
-                  id="ai_incident_type"
-                  class="ai-value-card"
-                  aria-disabled="true"
-                >
-                  -
-                </div>
-
-              </label>
-
-
-              <!-- Incident Description -->
-
-              <label>
-
-                Incident Description
-
-                <div
-                  id="ai_incident_description"
-                  class="ai-value-card"
-                  aria-disabled="true"
-                >
-                  -
-                </div>
-
-              </label>
-
-
-              <!-- Data Exposed -->
-
-              <label>
-
-                Data Exposed
-
-                <div
-                  id="ai_data_exposed"
-                  class="ai-value-card"
-                  aria-disabled="true"
-                >
-                  -
-                </div>
-
-              </label>
-
-
-              <!-- Sensitive Data -->
-
-              <label>
-
-                Sensitive Data
-
-                <div
-                  id="ai_incident_sensitive"
-                  class="ai-value-card"
-                  aria-disabled="true"
-                >
-                  -
-                </div>
-
-              </label>
-
-
-              <!-- External AI -->
-
-              <label>
-
-                External AI Involved
-
-                <div
-                  id="ai_incident_external"
-                  class="ai-value-card"
-                  aria-disabled="true"
-                >
-                  -
-                </div>
-
-              </label>
-
-
-              <!-- Affected Users -->
-
-              <label>
-
-                Affected Users
-
-                <div
-                  id="ai_incident_users"
-                  class="ai-value-card"
-                  aria-disabled="true"
-                >
-                  0
-                </div>
-
-              </label>
-
-
-            </div>
-
-          </div>
-
-
-        </div>
-
-      </div>
-
-
-      <!-- ==================================================
-           INCIDENT RESULT
-      =================================================== -->
-
-      <div
-        id="incidentResult"
-        class="result hidden"
-      ></div>
-
 
     </section>
-
 
 
     <!-- ==================================================
@@ -1069,80 +612,7 @@
     </section>
 
 
-
-    <!-- ==================================================
-         INCIDENT HISTORY
-    =================================================== -->
-
-    <section
-      id="incidentHistory"
-      class="tab"
-    >
-
-      <div class="panel">
-
-
-        <div class="panel-title">
-
-          <h2>
-            Incident History
-          </h2>
-
-
-          <button
-            onclick="loadIncidents()"
-          >
-            Refresh
-          </button>
-
-        </div>
-
-
-        <table>
-
-          <thead>
-
-            <tr>
-
-              <th>
-                ID
-              </th>
-
-              <th>
-                Incident
-              </th>
-
-              <th>
-                Severity
-              </th>
-
-              <th>
-                Status
-              </th>
-
-              <th>
-                Date
-              </th>
-
-            </tr>
-
-          </thead>
-
-
-          <tbody
-            id="incidentTable"
-          ></tbody>
-
-        </table>
-
-
-      </div>
-
-    </section>
-
-
   </main>
-
 
 
   <!-- ==================================================
@@ -1159,7 +629,6 @@
     </button>
 
   </footer>
-
 
 
   <!-- ==================================================
